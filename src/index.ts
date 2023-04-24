@@ -1,18 +1,21 @@
-import { createServer } from 'http';
 import { Server } from 'socket.io';
-
-const httpServer = createServer();
-const io = new Server(httpServer, {
-	/* options */
-});
+const io = new Server(4521, {});
+import { MessageReceived, SendMessagePayload } from 'kozz-types';
 
 io.on('connection', socket => {
 	console.log(socket.id);
-	io.emit('response', 'valeu');
 
-	socket.on('message', message => {
-		console.log(message);
+	socket.on('message', (message: MessageReceived) => {
+		if (message.body === '!ping') {
+			const reply: SendMessagePayload = {
+				body: 'pong',
+				chatId: message.to,
+				platform: 'WA',
+				timestamp: new Date().getTime(),
+				quoteId: message.id,
+			};
+
+			socket.emit('reply_message', reply);
+		}
 	});
 });
-
-httpServer.listen(4521);
