@@ -9,7 +9,6 @@ io.on('connection', socket => {
 	registerHandlers(socket);
 });
 
-const string =
-	'/yt download https://yt.com/video?v=ajk2c --this-is --but-that-is false';
+const string = '!google image minecraft --amount 15';
 
 console.log(JSON.stringify(parse(string), undefined, '  '));

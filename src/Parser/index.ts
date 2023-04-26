@@ -19,7 +19,6 @@ const anythingButParser = <T, D extends string, E>(p: Parser<T, D, E>) =>
 
 //Pieces of command
 const commandChar = choice([char('!'), char('/')]);
-
 const modName = sequenceOf([many(space), anythingButSpace]).map(r => r[1]);
 
 const method = possibly(
@@ -82,15 +81,13 @@ const parser = sequenceOf([
  */
 export const parse = (s: string) => {
 	const result = parser.run(s);
-	if (result.isError) {
-		return {
-			...result,
-			stringLeft: s.slice(result.index - 1, result.index + 20) + '...',
-		};
-	}
+
+	const stringLeft = result.isError
+		? s.slice(result.index - 1, result.index + 20) + '...'
+		: '';
 
 	return {
 		...result,
-		stringLeft: '',
+		stringLeft,
 	};
 };
