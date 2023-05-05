@@ -9,5 +9,6 @@ export const createMessagePayload = (
 		platform: 'WA',
 		timestamp: new Date().getTime(),
 		quoteId: message.id,
+		boundaryId: "AAA",
 	};
 };
