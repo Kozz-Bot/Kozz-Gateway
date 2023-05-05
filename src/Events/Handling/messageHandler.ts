@@ -4,6 +4,7 @@ import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
 import { getBoundary } from 'src/Boundaries';
 import { createReactToMessagePayload } from 'src/Payload/Creation/ReactToMessage';
+import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	const command = parse(message.body);
@@ -16,13 +17,19 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 	if (!handler) return;
 
 	if (message.contact.isBlocked) {
-		return socket.emit('reply_with_text', 'Você está bloqueado :)');
+		return socket.emit(
+			'reply_with_text',
+			createMessagePayload(message, 'Você está bloqueado :)')
+		);
 	}
 
 	if (!message.contact.hostAdded && !message.groupName) {
 		return socket.emit(
 			'reply_with_text',
-			'Esse bot NÃO É pra usar no privado. Se você insistir eu vou te bloquear'
+			createMessagePayload(
+				message,
+				'Esse bot NÃO É pra usar no privado. Se você insistir eu vou te bloquear'
+			)
 		);
 	}
 

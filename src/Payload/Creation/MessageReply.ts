@@ -1,14 +1,16 @@
 import { MessageReceived, SendMessagePayload } from 'kozz-types';
 
 export const createMessagePayload = (
-	message: MessageReceived
+	message: MessageReceived,
+	text: string
 ): SendMessagePayload => {
 	return {
-		body: 'pong',
+		body: text,
 		chatId: message.fromHostAccount ? message.to : message.from,
 		platform: 'WA',
 		timestamp: new Date().getTime(),
 		quoteId: message.id,
-		boundaryId: "AAA",
+		boundaryId: 'AAA',
+		contact: message.contact,
 	};
 };

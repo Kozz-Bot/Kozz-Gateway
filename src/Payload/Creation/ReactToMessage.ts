@@ -12,5 +12,6 @@ export const createReactToMessagePayload = (
 		emote,
 		platform: 'WA',
 		timestamp: new Date().getTime(),
+		contact: message.contact,
 	};
 };
