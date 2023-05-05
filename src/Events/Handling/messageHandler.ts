@@ -15,6 +15,17 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 	if (!handler) return;
 
+	if (message.contact.isBlocked) {
+		return socket.emit('reply_with_text', 'Você está bloqueado :)');
+	}
+
+	if (!message.contact.hostAdded && !message.groupName) {
+		return socket.emit(
+			'reply_with_text',
+			'Esse bot NÃO É pra usar no privado. Se você insistir eu vou te bloquear'
+		);
+	}
+
 	socket.emit('react_message', createReactToMessagePayload('✅', message));
 
 	handler.socket.emit('command', {
