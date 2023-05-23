@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { addIntroductionHandlers } from '../Introduction';
+import { addIntroductionHandlers } from '../Lifecycle/Introduction';
 import * as messageHandlers from './messageHandler';
 
 export const registerSocketEventHandlers = (socket: Socket) => {

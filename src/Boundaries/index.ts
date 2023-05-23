@@ -36,4 +36,9 @@ export const logBoundary = (boundary: BoundaryInstance) => {
 	);
 };
 
+export const removeBoundary = (boundaryId: string) => {
+	console.log(`Disconnecting Boundary with id ${boundaryId}`);
+	delete boundaries[boundaryId];
+};
+
 export default boundaries;
