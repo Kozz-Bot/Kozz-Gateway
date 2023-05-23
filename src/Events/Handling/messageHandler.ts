@@ -8,10 +8,10 @@ import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 
 const assertBoundary = (message: MessageReceived) => {
 	if (!message.boundaryId) {
-		throw 'No boundary ID provided';
+		throw 'Tried to send a message Payload with no boundary ID';
 	}
 	if (!getBoundary(message.boundaryId)) {
-		throw 'Boundary not registered';
+		throw `The boundary ${message.boundaryId} is not registered`;
 	}
 };
 
