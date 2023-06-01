@@ -1,18 +1,19 @@
 import { BoundaryInstance, Destination, MessageReceived, Source } from 'kozz-types';
 import { getBoundary } from 'src/Boundaries';
+import { getHandler } from 'src/Handlers';
 
 type ProxyMap = {
 	[key: Source]: Destination;
 };
 
-const getDestinationBoundaries = (destinationBoundariesId: Destination) => {
+const getDestination = (destinationBoundariesId: Destination) => {
 	const destinationBoundariesIdAsArray =
 		typeof destinationBoundariesId === 'string'
 			? [destinationBoundariesId]
 			: destinationBoundariesId;
 
 	return destinationBoundariesIdAsArray
-		.map(id => getBoundary(id))
+		.map(id => getBoundary(id) || getHandler(id))
 		.filter((boundary): boundary is BoundaryInstance => !!boundary);
 };
 
@@ -45,14 +46,14 @@ export const useProxy = (message: MessageReceived) => {
 
 	if (!proxy) return;
 
-	const [source, destinationBoundariesId] = proxy;
-	const destinationBoundaries = getDestinationBoundaries(destinationBoundariesId);
+	const [source, destinationIds] = proxy;
+	const destinations = getDestination(destinationIds);
 	const [_, sourceChatID] = source.split('/');
 	if (sourceChatID !== '*' && sourceChatID !== message.from) {
 		return;
 	}
 
-	destinationBoundaries.forEach(boundary => {
-		boundary.socket.emit('proxied_message', message);
+	destinations.forEach(destination => {
+		destination.socket.emit('proxied_message', message);
 	});
 };

@@ -5,7 +5,5 @@ const io = new Server(4521, {
 });
 
 io.on('connection', socket => {
-	console.log(socket.id);
-
 	registerSocketEventHandlers(socket);
 });
