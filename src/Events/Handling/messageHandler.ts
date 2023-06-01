@@ -5,6 +5,7 @@ import { parse } from 'src/Parser';
 import { getBoundary } from 'src/Boundaries';
 import { createReactToMessagePayload } from 'src/Payload/Creation/ReactToMessage';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
+import { useProxy } from 'src/Proxies';
 
 const assertBoundary = (message: MessageReceived) => {
 	if (!message.boundaryId) {
@@ -18,6 +19,9 @@ const assertBoundary = (message: MessageReceived) => {
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	try {
 		assertBoundary(message);
+
+		useProxy(message);
+
 		const command = parse(message.body);
 		if (command.isError) {
 			return;
