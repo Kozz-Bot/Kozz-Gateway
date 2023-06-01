@@ -30,6 +30,8 @@ export const getProxy = (source: Source) => {
 };
 
 export const removeProxy = (source: Source) => {
+	console.log('Revoking proxy from source', source);
+
 	if (source.split('/')[1] === '*') {
 		Object.entries(proxyMap).forEach(() => {
 			delete proxyMap[source as Source];
@@ -37,23 +39,27 @@ export const removeProxy = (source: Source) => {
 	} else if (proxyMap[source]) {
 		delete proxyMap[source];
 	}
+	console.log(proxyMap);
 };
 
 export const useProxy = (message: MessageReceived) => {
-	const proxy = Object.entries(proxyMap).find(([source, _]) =>
+	const proxies = Object.entries(proxyMap).filter(([source, _]) =>
 		source.startsWith(message.boundaryId)
 	);
 
-	if (!proxy) return;
+	if (!proxies.length) return;
 
-	const [source, destinationIds] = proxy;
-	const destinations = getDestination(destinationIds);
-	const [_, sourceChatID] = source.split('/');
-	if (sourceChatID !== '*' && sourceChatID !== message.from) {
-		return;
-	}
+	proxies.forEach(proxy => {
+		const [source, destinationIds] = proxy;
+		const destinations = getDestination(destinationIds);
+		const [_, sourceChatID] = source.split('/');
 
-	destinations.forEach(destination => {
-		destination.socket.emit('proxied_message', message);
+		if (sourceChatID !== '*' && sourceChatID !== message.to) {
+			return;
+		}
+
+		destinations.forEach(destination => {
+			destination.socket.emit('proxied_message', message);
+		});
 	});
 };
