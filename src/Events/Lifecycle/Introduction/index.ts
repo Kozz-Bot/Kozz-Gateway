@@ -5,49 +5,47 @@ import handlers, { isHandler, addHandler } from 'src/Handlers';
 import { addDisconnectHandlers } from '../Disconnect';
 import { removeSignatureFromPayload, verifyPayload } from 'src/Util';
 
-export const addIntroductionHandlers = (socket: Socket) => {
-	socket.on('introduction', (introduction: Introduction) => {
-		addDisconnectHandlers(socket, introduction);
+export const introduction = (socket: Socket) => (introduction: Introduction) => {
+	addDisconnectHandlers(socket, introduction);
 
-		if (isBoundary(introduction)) {
-			const payloadValid = verifyPayload(
-				removeSignatureFromPayload(introduction),
-				introduction.signature
-			);
+	if (isBoundary(introduction)) {
+		const payloadValid = verifyPayload(
+			removeSignatureFromPayload(introduction),
+			introduction.signature
+		);
 
-			if (!payloadValid) {
-				return console.warn(
-					"The boundary didn't provided a correct signature in the introduction payload"
-				);
-			}
-
-			addBoundary(introduction.id || socket.id, socket, introduction);
-
-			console.log(
-				`Connecting boundary with ID ${
-					introduction.id
-				}. Total boundaries: ${Object.keys(boundaries)}`
+		if (!payloadValid) {
+			return console.warn(
+				"The boundary didn't provided a correct signature in the introduction payload"
 			);
 		}
-		if (isHandler(introduction)) {
-			const payloadValid = verifyPayload(
-				removeSignatureFromPayload(introduction),
-				introduction.signature
-			);
 
-			if (!payloadValid) {
-				return console.warn(
-					"The handler didn't provided a correct signature in the introduction payload"
-				);
-			}
+		addBoundary(introduction.id || socket.id, socket, introduction);
 
-			addHandler(introduction.name, socket, introduction);
+		console.log(
+			`Connecting boundary with ID ${
+				introduction.id
+			}. Total boundaries: ${Object.keys(boundaries)}`
+		);
+	}
+	if (isHandler(introduction)) {
+		const payloadValid = verifyPayload(
+			removeSignatureFromPayload(introduction),
+			introduction.signature
+		);
 
-			console.log(
-				`Connecting Handler with ID ${introduction.name} and methods ${
-					introduction.methods
-				}. Total handlers: ${Object.keys(handlers)}`
+		if (!payloadValid) {
+			return console.warn(
+				"The handler didn't provided a correct signature in the introduction payload"
 			);
 		}
-	});
+
+		addHandler(introduction.name, socket, introduction);
+
+		console.log(
+			`Connecting Handler with ID ${introduction.name} and methods ${
+				introduction.methods
+			}. Total handlers: ${Object.keys(handlers)}`
+		);
+	}
 };

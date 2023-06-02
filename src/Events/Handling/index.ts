@@ -1,14 +1,16 @@
 import { Socket } from 'socket.io';
-import { addIntroductionHandlers } from '../Lifecycle/Introduction';
+
+import * as introductionHandlers from '../Lifecycle/Introduction';
 import * as messageHandlers from './messageHandler';
 import * as proxyHandlers from './proxyHanlder';
+import * as askingResourceHandlers from './askResource';
 
 export const registerSocketEventHandlers = (socket: Socket) => {
-	addIntroductionHandlers(socket);
-
 	Object.entries({
 		...messageHandlers,
 		...proxyHandlers,
+		...introductionHandlers,
+		...askingResourceHandlers,
 	}).forEach(([evName, handler]) => {
 		socket.on(evName, handler(socket));
 	});
