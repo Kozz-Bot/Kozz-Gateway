@@ -67,14 +67,23 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
  * @param socket
  * @returns
  */
-export const reply_with_text =
+export const send_message =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		console.log('Got reply with text request from handler');
-
 		const boundary = getBoundary(sendMessagePayload.boundaryId);
 		if (!boundary) return;
 
-		console.log('Replywing with text to boundary', boundary.id);
+		boundary.socket.emit('reply_with_text', sendMessagePayload);
+	};
+
+/**
+ * Forwards the request to the provided handler
+ * @param socket
+ * @returns
+ */
+export const reply_with_text =
+	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
+		const boundary = getBoundary(sendMessagePayload.boundaryId);
+		if (!boundary) return;
 
 		boundary.socket.emit('reply_with_text', sendMessagePayload);
 	};
@@ -86,8 +95,6 @@ export const reply_with_text =
  */
 export const reply_with_sticker =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		console.log('Got reply with sticker request from handler');
-
 		const boundary = getBoundary(sendMessagePayload.boundaryId);
 		if (!boundary) return;
 
@@ -101,8 +108,6 @@ export const reply_with_sticker =
  */
 export const reply_with_media =
 	(_: Socket) => (sendMediaPayload: SendMediaPayload) => {
-		console.log('Got reply with media request from handler');
-
 		const boundary = getBoundary(sendMediaPayload.boundaryId);
 		if (!boundary) return;
 

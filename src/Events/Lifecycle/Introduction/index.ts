@@ -16,7 +16,7 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 
 		if (!payloadValid) {
 			return console.warn(
-				"The boundary didn't provided a correct signature in the introduction payload"
+				`The boundary ${introduction.id} didn't provided a correct signature in the introduction payload`
 			);
 		}
 
@@ -36,7 +36,7 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 
 		if (!payloadValid) {
 			return console.warn(
-				"The handler didn't provided a correct signature in the introduction payload"
+				`The handler ${introduction.name} didn't provided a correct signature in the introduction payload`
 			);
 		}
 

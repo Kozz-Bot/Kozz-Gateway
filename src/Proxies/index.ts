@@ -22,7 +22,17 @@ const proxyMap: ProxyMap = {};
 export const upsertProxy = (source: Source, destination: Destination) => {
 	console.log(`upserting proxy: ${source} -> ${destination}`);
 
-	proxyMap[source] = destination;
+	if (proxyMap[source]) {
+		if (destination.length) {
+			proxyMap[source] = [...proxyMap[source], ...destination];
+		}
+	}
+
+	if (typeof destination === 'string') {
+		proxyMap[source] = [destination];
+	} else {
+		proxyMap[source] = [...destination];
+	}
 };
 
 export const getProxy = (source: Source) => {

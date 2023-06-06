@@ -27,10 +27,6 @@ export const reply_resource =
 			// Gateway can't ask any entity so it can't be the target of the response;
 		})();
 
-		console.log(
-			`Replying resource ${payload.request.resource} for ${destinationEntity?.id}`
-		);
-
 		destinationEntity?.socket.emit(`reply_resource/${payload.request.id}`, payload);
 	};
 
@@ -45,9 +41,6 @@ const askBoundary = (payload: AskResourcePayload) => {
 		return;
 	}
 
-	console.log(
-		`Asking Boundary ${boundary.id} for resource ${payload.request.resource}`
-	);
 	boundary.socket.emit('ask_resource', payload);
 };
 
@@ -62,9 +55,6 @@ const askHandler = (payload: AskResourcePayload) => {
 		return;
 	}
 
-	console.log(
-		`Asking handler ${handler.name} for resource ${payload.request.resource}`
-	);
 	handler.socket.emit('ask_resource', payload);
 };
 
