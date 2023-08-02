@@ -5,6 +5,7 @@ import {
 } from 'kozz-types/dist';
 import { Socket } from 'socket.io';
 import { createBoundary } from './Boundary';
+import { normalizeString } from 'src/Util';
 
 let boundaries: {
 	[key: string]: BoundaryInstance;
@@ -22,7 +23,7 @@ export const addBoundary = (
 };
 
 export const getBoundary = (id: string): BoundaryInstance | undefined =>
-	boundaries[id];
+	boundaries[normalizeString(id)];
 
 export const isBoundary = (
 	introduction: Introduction

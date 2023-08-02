@@ -2,6 +2,7 @@ import { AskResourcePayload, ProvideResourcePayload } from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getBoundary } from '../../Boundaries';
 import { getHandler } from '../../Handlers';
+import { getAllBoundaries, getAllHandlers } from './Getters';
 
 export const ask_resource = (socket: Socket) => (payload: AskResourcePayload) => {
 	if (payload.responder.type === 'Handler') {
@@ -11,7 +12,6 @@ export const ask_resource = (socket: Socket) => (payload: AskResourcePayload) =>
 		return askBoundary(payload);
 	}
 	if (payload.responder.type === 'Gateway') {
-		// [TODO]
 		return askGateway(payload);
 	}
 };
@@ -58,4 +58,11 @@ const askHandler = (payload: AskResourcePayload) => {
 	handler.socket.emit('ask_resource', payload);
 };
 
-const askGateway = (payload: AskResourcePayload) => {};
+const askGateway = (payload: AskResourcePayload) => {
+	if (payload.request.resource === 'all_boundaries') {
+		return getAllBoundaries();
+	}
+	if (payload.request.resource === 'all_handlers') {
+		return getAllHandlers();
+	}
+};

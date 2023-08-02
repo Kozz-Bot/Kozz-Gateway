@@ -5,6 +5,7 @@ import {
 } from 'kozz-types/dist';
 import { Socket } from 'socket.io';
 import { createHandler } from './Handler';
+import { normalizeString } from 'src/Util';
 
 let handlers: {
 	[key: string]: HandlerInstance;
@@ -21,7 +22,8 @@ export const addHandler = (
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
 
-export const getHandler = (id: string): HandlerInstance | undefined => handlers[id];
+export const getHandler = (id: string): HandlerInstance | undefined =>
+	handlers[normalizeString(id)];
 
 export const isHandler = (
 	introduction: Introduction

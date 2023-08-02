@@ -1,4 +1,10 @@
-import { MessageReceived, SendMessagePayload, SendMediaPayload } from 'kozz-types';
+import {
+	MessageReceived,
+	SendMessagePayload,
+	SendMediaPayload,
+	ReactToMessagePayload,
+	EditMessagePayload,
+} from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
@@ -62,6 +68,13 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 	}
 };
 
+const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) => {
+	const boundary = getBoundary(payload.boundaryId);
+	if (!boundary) return;
+
+	boundary.socket.emit(eventName, payload);
+};
+
 /**
  * Forwards the request to the provided handler
  * @param socket
@@ -69,10 +82,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
  */
 export const send_message =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		const boundary = getBoundary(sendMessagePayload.boundaryId);
-		if (!boundary) return;
-
-		boundary.socket.emit('reply_with_text', sendMessagePayload);
+		forwardsToBoundary('send_message', sendMessagePayload);
 	};
 
 /**
@@ -82,10 +92,7 @@ export const send_message =
  */
 export const reply_with_text =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		const boundary = getBoundary(sendMessagePayload.boundaryId);
-		if (!boundary) return;
-
-		boundary.socket.emit('reply_with_text', sendMessagePayload);
+		forwardsToBoundary('reply_with_text', sendMessagePayload);
 	};
 
 /**
@@ -95,10 +102,7 @@ export const reply_with_text =
  */
 export const reply_with_sticker =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		const boundary = getBoundary(sendMessagePayload.boundaryId);
-		if (!boundary) return;
-
-		boundary.socket.emit('reply_with_sticker', sendMessagePayload);
+		forwardsToBoundary('reply_with_sticker', sendMessagePayload);
 	};
 
 /**
@@ -108,8 +112,15 @@ export const reply_with_sticker =
  */
 export const reply_with_media =
 	(_: Socket) => (sendMediaPayload: SendMediaPayload) => {
-		const boundary = getBoundary(sendMediaPayload.boundaryId);
-		if (!boundary) return;
+		forwardsToBoundary('reply_with_media', sendMediaPayload);
+	};
 
-		boundary.socket.emit('reply_with_media', sendMediaPayload);
+export const react_message =
+	(_: Socket) => (reactPayload: ReactToMessagePayload) => {
+		forwardsToBoundary('react_message', reactPayload);
+	};
+
+export const edit_message =
+	(_: Socket) => (editMessagePayload: EditMessagePayload) => {
+		forwardsToBoundary('edit_message', editMessagePayload);
 	};
