@@ -59,10 +59,32 @@ const askHandler = (payload: AskResourcePayload) => {
 };
 
 const askGateway = (payload: AskResourcePayload) => {
-	if (payload.request.resource === 'all_boundaries') {
-		return getAllBoundaries();
-	}
-	if (payload.request.resource === 'all_handlers') {
-		return getAllHandlers();
-	}
+	const response = (() => {
+		if (payload.request.resource === 'all_boundaries') {
+			return getAllBoundaries();
+		}
+		if (payload.request.resource === 'all_handlers') {
+			return getAllHandlers();
+		}
+	})();
+
+	const destinyEntityType = payload.requester.type;
+
+	const destinationEntity = (() => {
+		const entityId = payload.requester.id;
+		if (destinyEntityType === 'Boundary') return getBoundary(entityId);
+		if (destinyEntityType === 'Handler') return getHandler(entityId);
+	})();
+
+	const responsePayload: ProvideResourcePayload = {
+		...payload,
+		response,
+	};
+
+	console.log(destinationEntity?.id);
+
+	destinationEntity?.socket.emit(
+		`reply_resource/${payload.request.id}`,
+		responsePayload
+	);
 };
