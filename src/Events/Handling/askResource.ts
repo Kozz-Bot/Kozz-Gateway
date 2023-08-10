@@ -81,8 +81,6 @@ const askGateway = (payload: AskResourcePayload) => {
 		response,
 	};
 
-	console.log(destinationEntity?.id);
-
 	destinationEntity?.socket.emit(
 		`reply_resource/${payload.request.id}`,
 		responsePayload
