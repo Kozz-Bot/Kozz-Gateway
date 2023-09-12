@@ -76,17 +76,21 @@ const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) 
 };
 
 /**
- * Forwards the request to the provided handler
+ * Forwards the request to the provided boundary
  * @param socket
  * @returns
  */
 export const send_message =
 	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		forwardsToBoundary('send_message', sendMessagePayload);
+		if (sendMessagePayload.media) {
+			forwardsToBoundary('send_message_with_media', sendMessagePayload);
+		} else {
+			forwardsToBoundary('send_message', sendMessagePayload);
+		}
 	};
 
 /**
- * Forwards the request to the provided handler
+ * Forwards the request to the provided boundary
  * @param socket
  * @returns
  */
@@ -96,7 +100,7 @@ export const reply_with_text =
 	};
 
 /**
- * Forwards the request to the provided handler
+ * Forwards the request to the provided boundary
  * @param socket
  * @returns
  */
@@ -106,7 +110,7 @@ export const reply_with_sticker =
 	};
 
 /**
- * Forwards the request to the provided handler
+ * Forwards the request to the provided boundary
  * @param socket
  * @returns
  */

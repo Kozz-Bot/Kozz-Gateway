@@ -9,5 +9,6 @@ type CreateBoundaryInfo = BoundaryIntroduction & {
 export const createBoundary = (info: CreateBoundaryInfo): BoundaryInstance => {
 	return {
 		...info,
+		listeners: [],
 	};
 };

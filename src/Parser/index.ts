@@ -43,8 +43,16 @@ const namedArgs = (() => {
 		sequenceOf([
 			many1(space),
 			anythingButParser(choice([char(' '), char('-')])),
-		]).map(x => x[1])
-	).map(x => x || 'true');
+		]).map(x =>
+			x[1] === 'true'
+				? true
+				: x[1] === 'false'
+				? false
+				: !isNaN(Number(x[1]))
+				? Number(x[1])
+				: x[1]
+		)
+	).map(x => x || true);
 
 	return many1(
 		sequenceOf([argName, argValue]).map(r => ({

@@ -9,5 +9,6 @@ type CreateBoundaryInfo = HandlerIntroduction & {
 export const createHandler = (info: CreateBoundaryInfo): HandlerInstance => {
 	return {
 		...info,
+		listeners: [],
 	};
 };
