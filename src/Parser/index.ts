@@ -7,6 +7,7 @@ import {
 	choice,
 	str,
 	possibly,
+	anythingExcept,
 	Parser,
 } from 'arcsecond';
 
@@ -22,12 +23,23 @@ const commandChar = choice([char('!'), char('/')]);
 const modName = sequenceOf([many(space), anythingButSpace]).map(r => r[1]);
 
 const method = possibly(
-	sequenceOf([many(space), anythingButSpace]).map(r => r[1])
+	sequenceOf([many(space), anythingButParser(choice([str('--'), space]))]).map(
+		r => r[1]
+	)
 ).map(x => x || 'default');
 
 const immediateArg = sequenceOf([many(space), anythingBut('--')]).map(r =>
 	r[1].trim()
 );
+
+const toArg = (x: string) =>
+	x === 'true'
+		? true
+		: x[1] === 'false'
+		? false
+		: !isNaN(Number(x[1]))
+		? Number(x[1])
+		: x[1].trim();
 
 /**
  * I thought it would be better to use this as an IIFE
@@ -43,15 +55,7 @@ const namedArgs = (() => {
 		sequenceOf([
 			many1(space),
 			anythingButParser(choice([char(' '), char('-')])),
-		]).map(x =>
-			x[1] === 'true'
-				? true
-				: x[1] === 'false'
-				? false
-				: !isNaN(Number(x[1]))
-				? Number(x[1])
-				: x[1]
-		)
+		]).map(x => toArg(x[1]))
 	).map(x => x || true);
 
 	return many1(

@@ -9,7 +9,6 @@ import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
 import { getBoundary } from 'src/Boundaries';
-import { createReactToMessagePayload } from 'src/Payload/Creation/ReactToMessage';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 import { useProxy } from 'src/Proxies';
 
@@ -43,18 +42,6 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 				createMessagePayload(message, 'Você está bloqueado :)')
 			);
 		}
-
-		if (!message.contact.hostAdded && !message.groupName) {
-			return socket.emit(
-				'reply_with_text',
-				createMessagePayload(
-					message,
-					'Esse bot NÃO É pra usar no privado. Se você insistir eu vou te bloquear'
-				)
-			);
-		}
-
-		socket.emit('react_message', createReactToMessagePayload('✅', message));
 
 		handler.socket.emit('command', {
 			method,
