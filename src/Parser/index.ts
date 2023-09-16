@@ -31,16 +31,8 @@ const method = possibly(
 const immediateArg = sequenceOf([many(space), anythingBut('--')]).map(r =>
 	r[1].trim()
 );
-
 const toArg = (x: string) =>
-	x === 'true'
-		? true
-		: x[1] === 'false'
-		? false
-		: !isNaN(Number(x[1]))
-		? Number(x[1])
-		: x[1].trim();
-
+	x === 'true' ? true : x === 'false' ? false : !isNaN(Number(x)) ? Number(x) : x;
 /**
  * I thought it would be better to use this as an IIFE
  * closing `argName` and `argValue` inside the scope of
@@ -56,7 +48,7 @@ const namedArgs = (() => {
 			many1(space),
 			anythingButParser(choice([char(' '), char('-')])),
 		]).map(x => toArg(x[1]))
-	).map(x => x || true);
+	).map(x => x ?? true);
 
 	return many1(
 		sequenceOf([argName, argValue]).map(r => ({
