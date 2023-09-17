@@ -4,6 +4,7 @@ import {
 	SendMediaPayload,
 	ReactToMessagePayload,
 	EditMessagePayload,
+	Command,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
@@ -31,7 +32,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 		if (command.isError) {
 			return;
 		}
-		const { module, method, immediateArg, namedArgs } = command.result;
+		const { module, method, immediateArg, namedArgs, query } = command.result;
 		const handler = getHandler(module);
 
 		if (!handler) return;
@@ -43,13 +44,17 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			);
 		}
 
-		handler.socket.emit('command', {
+		const commandPayload: Command = {
 			method,
 			immediateArg,
 			namedArgs,
 			boundaryId: message.boundaryId || socket.id,
 			message,
-		});
+			query,
+			taggedContacts: message.taggedContacts,
+		};
+
+		handler.socket.emit('command', commandPayload);
 	} catch (e) {
 		console.warn(e);
 	}
