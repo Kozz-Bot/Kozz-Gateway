@@ -5,14 +5,14 @@ import {
 	ReactToMessagePayload,
 	EditMessagePayload,
 	Command,
+	MessageReceivedByGateway,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import { getBoundary, getBoundaryByName } from 'src/Boundaries';
+import { getBoundary } from 'src/Boundaries';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 import { useProxy } from 'src/Proxies';
-import { getAllBoundaries } from './Getters';
 
 const assertBoundary = (id: string) => {
 	if (!getBoundary(id)) {
@@ -22,12 +22,18 @@ const assertBoundary = (id: string) => {
 
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	try {
+		const newMessage: MessageReceivedByGateway = {
+			...message,
+			timestamp: message.timestamp || new Date().getTime(),
+			boundaryId: socket.id,
+		};
+
 		const id = socket.id;
 		assertBoundary(id);
 
-		useProxy(message);
+		useProxy(newMessage);
 
-		const command = parse(message.body);
+		const command = parse(newMessage.body);
 		if (command.isError) {
 			return;
 		}
@@ -36,14 +42,12 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 		if (!handler) return;
 
-		if (message.contact.isBlocked) {
+		if (newMessage.contact.isBlocked) {
 			return socket.emit(
 				'reply_with_text',
-				createMessagePayload(message, 'Você está bloqueado :)')
+				createMessagePayload(newMessage, 'Você está bloqueado :)')
 			);
 		}
-
-		console.log('sending command');
 
 		const commandPayload: Command = {
 			method,
@@ -53,7 +57,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			message,
 			query,
 			boundaryName: getBoundary(socket.id)!.name,
-			taggedContacts: message.taggedContacts,
+			taggedContacts: newMessage.taggedContacts,
 		};
 
 		handler.socket.emit('command', commandPayload);
