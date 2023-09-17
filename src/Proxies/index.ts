@@ -53,7 +53,7 @@ export const removeProxy = (source: Source) => {
 
 export const useProxy = (message: MessageReceived) => {
 	const proxies = Object.entries(proxyMap).filter(([source, _]) =>
-		source.startsWith(message.boundaryId)
+		source.startsWith(message.boundaryName)
 	);
 
 	if (!proxies.length) return;

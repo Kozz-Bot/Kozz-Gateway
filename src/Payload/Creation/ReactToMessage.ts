@@ -6,7 +6,7 @@ export const createReactToMessagePayload = (
 ): ReactToMessagePayload => {
 	return {
 		messageId: message.id,
-		boundaryId: message.boundaryId,
+		boundaryId: message.boundaryName,
 		emote,
 	};
 };
