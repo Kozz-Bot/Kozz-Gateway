@@ -23,21 +23,19 @@ const anythingButParser = <T, D extends string, E>(p: Parser<T, D, E>) =>
 //Pieces of command
 const commandChar = choice([char('!'), char('/')]);
 const modName = sequenceOf([many(space), anythingButSpace]).map(r => r[1]);
-const contactTag = (reason: string) => {
-	return sequenceOf([str('@'), number]).map(x => {
-		console.log(reason);
-		return x[1];
-	});
-};
+const contactTag = sequenceOf([str('@'), number]).map(x => {
+	return x[1];
+});
+
 const method = possibly(
 	sequenceOf([
 		many(space),
-		anythingButParser(choice([str('--'), space, contactTag('method')])),
+		anythingButParser(choice([str('--'), space, contactTag])),
 	]).map(r => r[1])
 ).map(x => x || 'default');
 
 const immediateArg = choice([
-	contactTag('immediateArg'),
+	contactTag,
 	sequenceOf([many(space), anythingButParser(choice([str('--')]))]),
 ]).map(r => {
 	return r[1];
@@ -57,10 +55,7 @@ const namedArgs = (() => {
 	});
 
 	const argValue = possibly(
-		choice([
-			sequenceOf([many1(space), anythingButParser(str('--'))]),
-			contactTag('argValue'),
-		])
+		choice([sequenceOf([many1(space), anythingButParser(str('--'))]), contactTag])
 	).map(x => {
 		return toArg(x ? x[1].trim() : 'true');
 	});
