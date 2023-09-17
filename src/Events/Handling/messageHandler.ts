@@ -9,22 +9,21 @@ import {
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import { getBoundary } from 'src/Boundaries';
+import { getBoundary, getBoundaryByName } from 'src/Boundaries';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 import { useProxy } from 'src/Proxies';
+import { getAllBoundaries } from './Getters';
 
-const assertBoundary = (message: MessageReceived) => {
-	if (!message.boundaryId) {
-		throw 'Tried to send a message Payload with no boundary ID';
-	}
-	if (!getBoundary(message.boundaryId)) {
-		throw `The boundary ${message.boundaryId} is not registered`;
+const assertBoundary = (id: string) => {
+	if (!getBoundary(id)) {
+		throw `The boundary ${id} is not registered`;
 	}
 };
 
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	try {
-		assertBoundary(message);
+		const id = socket.id;
+		assertBoundary(id);
 
 		useProxy(message);
 
@@ -44,13 +43,16 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			);
 		}
 
+		console.log('sending command');
+
 		const commandPayload: Command = {
 			method,
 			immediateArg,
 			namedArgs,
-			boundaryId: message.boundaryId || socket.id,
+			boundaryId: socket.id,
 			message,
 			query,
+			boundaryName: getBoundary(socket.id)!.name,
 			taggedContacts: message.taggedContacts,
 		};
 
@@ -61,10 +63,10 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 };
 
 const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) => {
-	const boundary = getBoundary(payload.boundaryId);
-	if (!boundary) return;
+	const boundaryData = getBoundary(payload.boundaryId);
+	if (!boundaryData) return;
 
-	boundary.socket.emit(eventName, payload);
+	boundaryData.socket.emit(eventName, payload);
 };
 
 /**
@@ -73,7 +75,7 @@ const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) 
  * @returns
  */
 export const send_message =
-	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
+	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
 		if (sendMessagePayload.media) {
 			forwardsToBoundary('send_message_with_media', sendMessagePayload);
 		} else {
@@ -87,7 +89,8 @@ export const send_message =
  * @returns
  */
 export const reply_with_text =
-	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
+	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
+		console.log('Reply');
 		forwardsToBoundary('reply_with_text', sendMessagePayload);
 	};
 
@@ -97,7 +100,7 @@ export const reply_with_text =
  * @returns
  */
 export const reply_with_sticker =
-	(_: Socket) => (sendMessagePayload: SendMessagePayload) => {
+	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
 		forwardsToBoundary('reply_with_sticker', sendMessagePayload);
 	};
 
@@ -107,16 +110,16 @@ export const reply_with_sticker =
  * @returns
  */
 export const reply_with_media =
-	(_: Socket) => (sendMediaPayload: SendMediaPayload) => {
+	(socket: Socket) => (sendMediaPayload: SendMediaPayload) => {
 		forwardsToBoundary('reply_with_media', sendMediaPayload);
 	};
 
 export const react_message =
-	(_: Socket) => (reactPayload: ReactToMessagePayload) => {
+	(socket: Socket) => (reactPayload: ReactToMessagePayload) => {
 		forwardsToBoundary('react_message', reactPayload);
 	};
 
 export const edit_message =
-	(_: Socket) => (editMessagePayload: EditMessagePayload) => {
+	(socket: Socket) => (editMessagePayload: EditMessagePayload) => {
 		forwardsToBoundary('edit_message', editMessagePayload);
 	};

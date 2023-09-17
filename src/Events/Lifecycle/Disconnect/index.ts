@@ -9,10 +9,10 @@ export const addDisconnectHandlers = (
 ) => {
 	socket.on('disconnecting', () => {
 		if (isBoundary(introduction)) {
-			removeBoundary(introduction.id || socket.id);
+			removeBoundary(socket.id);
 		}
 		if (isHandler(introduction)) {
-			removeHandler(introduction.name);
+			removeHandler(socket.id);
 		}
 	});
 };

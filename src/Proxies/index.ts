@@ -1,5 +1,5 @@
 import { BoundaryInstance, Destination, MessageReceived, Source } from 'kozz-types';
-import { getBoundary } from 'src/Boundaries';
+import { getBoundary, getBoundaryByName } from 'src/Boundaries';
 import { getHandler } from 'src/Handlers';
 
 type ProxyMap = {
@@ -13,7 +13,7 @@ const getDestination = (destinationBoundariesId: Destination) => {
 			: destinationBoundariesId;
 
 	return destinationBoundariesIdAsArray
-		.map(id => getBoundary(id) || getHandler(id))
+		.map(id => getBoundaryByName(id) || getHandler(id))
 		.filter((boundary): boundary is BoundaryInstance => !!boundary);
 };
 
@@ -49,7 +49,6 @@ export const removeProxy = (source: Source) => {
 	} else if (proxyMap[source]) {
 		delete proxyMap[source];
 	}
-	console.log(proxyMap);
 };
 
 export const useProxy = (message: MessageReceived) => {

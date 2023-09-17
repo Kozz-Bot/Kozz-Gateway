@@ -7,24 +7,29 @@ import {
 import { Socket } from 'socket.io';
 import { createBoundary } from './Boundary';
 import { normalizeString } from 'src/Util';
+import { getAllBoundaries } from 'src/Events/Handling/Getters';
 
 let boundaries: {
 	[key: string]: BoundaryInstance;
 } = {};
 
 export const addBoundary = (
-	id: string,
+	name: string,
 	socket: Socket,
 	introduction: BoundaryIntroduction
 ) => {
+	const id = socket.id;
 	if (getBoundary(id)) {
-		console.warn(`Reconecting boundary with ID ${id}`);
+		console.warn(`Reconecting boundary with name ${name}`);
 	}
-	boundaries[id] = createBoundary({ id, socket, ...introduction });
+	boundaries[id] = createBoundary({ id, name, socket, ...introduction });
 };
 
 export const getBoundary = (id: string): BoundaryInstance | undefined =>
 	boundaries[normalizeString(id)];
+
+export const getBoundaryByName = (name: string) =>
+	getAllBoundaryInstances().find(boundary => boundary.name === name);
 
 export const getAllBoundaryInstances = (): BoundaryInstance[] =>
 	Object.values(boundaries);
@@ -52,6 +57,11 @@ export const addListenerToBoundary = (
 		return console.warn(
 			`Tried to register listener for event ${eventName} in non-existent boundary ${destinationId}`
 		);
+	}
+
+	//If is already listening listening to the event, do nothing;
+	if (boundary.listeners.find(ev => ev.eventName === eventName)) {
+		return;
 	}
 
 	boundary.listeners.push({

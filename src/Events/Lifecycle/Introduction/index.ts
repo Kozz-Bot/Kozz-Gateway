@@ -22,11 +22,7 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 
 		addBoundary(introduction.id || socket.id, socket, introduction);
 
-		console.log(
-			`Connecting boundary with ID ${
-				introduction.id
-			}. Total boundaries: ${Object.keys(boundaries)}`
-		);
+		console.log(`Connecting boundary with name ${introduction.id}`);
 	}
 	if (isHandler(introduction)) {
 		const payloadValid = verifyPayload(

@@ -1,28 +1,66 @@
+import { BoundaryInstance, EventListener } from 'kozz-types';
+import { Socket } from 'socket.io';
 import boundaries from 'src/Boundaries';
 import handlers from 'src/Handlers';
 
-export const getAllBoundaries = () => {
-	return Object.keys(boundaries).map(key => {
-		const { id, platform, OS } = boundaries[key];
-
-		return {
-			name: key,
-			boundary: {
-				id,
-				platform,
-				OS,
-			},
-		};
-	});
+type GetBoundaryReturn<GetSocket = false> = {
+	id: string;
+	boundary: {
+		name: string;
+		platform: 'WA';
+		OS: NodeJS.Platform;
+		listeners: EventListener[];
+		socket: GetSocket extends true ? Socket : never;
+	};
 };
 
-export const getAllHandlers = () => {
+export const getAllBoundaries = <GetSocket>(
+	getSocket?: GetSocket
+): GetBoundaryReturn<GetSocket>[] => {
+	return Object.keys(boundaries).map(key => {
+		const { name, platform, OS, listeners, socket } = boundaries[key];
+
+		return {
+			id: key,
+			boundary: {
+				name,
+				platform,
+				OS,
+				listeners,
+				socket: getSocket ? socket : undefined,
+			},
+		};
+		// This cast is necessary because Object.keys doesnt behave
+		// with proper static typing
+	}) as unknown as GetBoundaryReturn<GetSocket>[];
+};
+
+export type GetAllHandlersReturn<GetSocket = false> = {
+	name: string;
+	handler: {
+		id: string;
+		methods: string[];
+		name: string;
+		role: 'handler';
+		listeners: EventListener[];
+		socket: GetSocket extends true ? Socket : never;
+	};
+};
+
+export const getAllHandlers = <GetSocket>(getSocket?: GetSocket) => {
 	return Object.keys(handlers).map(key => {
-		const { id, methods, name, role } = handlers[key];
+		const { id, methods, name, role, listeners, socket } = handlers[key];
 
 		return {
 			name: key,
-			handler: { id, methods, name, role },
+			handler: {
+				id,
+				methods,
+				name,
+				role,
+				listeners,
+				socket: getSocket ? socket : undefined,
+			},
 		};
-	});
+	}) as unknown as GetAllHandlersReturn<GetSocket>[];
 };
