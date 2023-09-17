@@ -40,7 +40,6 @@ export type GetAllHandlersReturn<GetSocket = false> = {
 	handler: {
 		id: string;
 		methods: string[];
-		name: string;
 		role: 'handler';
 		listeners: EventListener[];
 		socket: GetSocket extends true ? Socket : never;
@@ -52,11 +51,10 @@ export const getAllHandlers = <GetSocket>(getSocket?: GetSocket) => {
 		const { id, methods, name, role, listeners, socket } = handlers[key];
 
 		return {
-			name: key,
+			name,
 			handler: {
 				id,
 				methods,
-				name,
 				role,
 				listeners,
 				socket: getSocket ? socket : undefined,

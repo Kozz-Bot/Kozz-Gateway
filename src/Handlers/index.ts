@@ -18,11 +18,14 @@ export const addHandler = (
 	introduction: HandlerIntroduction
 ) => {
 	const id = socket.id;
-	if (getHandler(name)) {
+	if (getHandlerByName(name)) {
 		console.warn(`Reconnecting Handler with name ${name}`);
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
+
+export const getHandlerByName = (name: string): HandlerInstance | undefined =>
+	Object.values(handlers).find(handler => handler.name === name);
 
 export const getHandler = (name: string): HandlerInstance | undefined =>
 	Object.values(handlers).find(handler => handler.name === name);
@@ -53,6 +56,8 @@ export const addListenerToHandler = (
 	if (handler.listeners.find(ev => ev.eventName === eventName)) {
 		return;
 	}
+
+	console.log('adding listener to event');
 
 	handler.listeners.push({
 		id: new Date().getTime().toString(),
