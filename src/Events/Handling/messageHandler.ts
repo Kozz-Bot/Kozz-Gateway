@@ -10,7 +10,7 @@ import {
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import { getBoundary } from 'src/Boundaries';
+import { getBoundary, getBoundaryByName } from 'src/Boundaries';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
 import { useProxy } from 'src/Proxies';
 
@@ -67,7 +67,8 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 };
 
 const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) => {
-	const boundaryData = getBoundary(payload.boundaryId);
+	const boundaryData =
+		getBoundary(payload.boundaryId) || getBoundaryByName(payload.boundaryId);
 	if (!boundaryData) return;
 
 	boundaryData.socket.emit(eventName, payload);
@@ -94,7 +95,6 @@ export const send_message =
  */
 export const reply_with_text =
 	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		console.log('Reply');
 		forwardsToBoundary('reply_with_text', sendMessagePayload);
 	};
 

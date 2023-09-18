@@ -1,7 +1,7 @@
 import { AskResourcePayload, ProvideResourcePayload } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { getBoundary } from '../../Boundaries';
-import { getHandler } from '../../Handlers';
+import { getBoundary, getBoundaryByName } from '../../Boundaries';
+import { getHandler, getHandlerByName } from '../../Handlers';
 import { getAllBoundaries, getAllHandlers } from './Getters';
 
 export const ask_resource = (socket: Socket) => (payload: AskResourcePayload) => {
@@ -22,8 +22,10 @@ export const reply_resource =
 
 		const destinationEntity = (() => {
 			const entityId = payload.requester.id;
-			if (destinyEntityType === 'Boundary') return getBoundary(entityId);
-			if (destinyEntityType === 'Handler') return getHandler(entityId);
+			if (destinyEntityType === 'Boundary')
+				return getBoundary(entityId) || getBoundaryByName(entityId);
+			if (destinyEntityType === 'Handler')
+				return getHandler(entityId) || getHandlerByName(entityId);
 			// Gateway can't ask any entity so it can't be the target of the response;
 		})();
 
@@ -36,7 +38,8 @@ export const reply_resource =
  * @returns
  */
 const askBoundary = (payload: AskResourcePayload) => {
-	const boundary = getBoundary(payload.responder.id);
+	const boundary =
+		getBoundary(payload.responder.id) || getBoundaryByName(payload.responder.id);
 	if (!boundary) {
 		return;
 	}
@@ -50,7 +53,8 @@ const askBoundary = (payload: AskResourcePayload) => {
  * @returns
  */
 const askHandler = (payload: AskResourcePayload) => {
-	const handler = getHandler(payload.responder.id);
+	const handler =
+		getHandler(payload.responder.id) || getHandlerByName(payload.responder.id);
 	if (!handler) {
 		return;
 	}
@@ -63,7 +67,7 @@ const askGateway = (payload: AskResourcePayload) => {
 		if (payload.request.resource === 'all_boundaries') {
 			return getAllBoundaries();
 		}
-		if (payload.request.resource === 'all_handlers') {
+		if (payload.request.resource === 'all_modules') {
 			return getAllHandlers();
 		}
 	})();
@@ -72,8 +76,10 @@ const askGateway = (payload: AskResourcePayload) => {
 
 	const destinationEntity = (() => {
 		const entityId = payload.requester.id;
-		if (destinyEntityType === 'Boundary') return getBoundary(entityId);
-		if (destinyEntityType === 'Handler') return getHandler(entityId);
+		if (destinyEntityType === 'Boundary')
+			return getBoundary(entityId) || getBoundaryByName(entityId);
+		if (destinyEntityType === 'Handler')
+			return getHandler(entityId) || getHandlerByName(entityId);
 	})();
 
 	const responsePayload: ProvideResourcePayload = {
