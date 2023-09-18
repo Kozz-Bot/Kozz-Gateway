@@ -9,7 +9,7 @@
 		"start": "tsc && link-module-alias && node dist/index.js",
 		"test": "jest",
 		"docs": "typedoc ./src/index.ts",
-		"types": "yarn add -D ~/Projects/Kozz/kozz-types/"
+		"types": "yarn add -D ../kozz-types/"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.14",
