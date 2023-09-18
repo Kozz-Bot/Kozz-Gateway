@@ -39,11 +39,6 @@ export const event_forward_revoke =
 			return console.warn('Invalid source name');
 		}
 
-		console.log('Forwarding Event Revoke', {
-			destination,
-			eventName,
-		});
-
 		const { type, id } = destination;
 
 		if (type === 'Boundary' && getBoundaryByName(sourceName)) {
