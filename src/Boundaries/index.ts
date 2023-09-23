@@ -13,16 +13,12 @@ let boundaries: {
 	[key: string]: BoundaryInstance;
 } = {};
 
-export const addBoundary = (
-	name: string,
-	socket: Socket,
-	introduction: BoundaryIntroduction
-) => {
+export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
 	const id = socket.id;
 	if (getBoundary(id)) {
-		console.warn(`Reconecting boundary with name ${name}`);
+		console.warn(`Reconecting boundary with name ${introduction.name}`);
 	}
-	boundaries[id] = createBoundary({ id, name, socket, ...introduction });
+	boundaries[id] = createBoundary({ id, socket, ...introduction });
 };
 
 export const getBoundary = (id: string): BoundaryInstance | undefined =>

@@ -16,13 +16,13 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 
 		if (!payloadValid) {
 			return console.warn(
-				`The boundary ${introduction.id} didn't provided a correct signature in the introduction payload`
+				`The boundary ${introduction.name} didn't provided a correct signature in the introduction payload`
 			);
 		}
 
-		addBoundary(introduction.id || socket.id, socket, introduction);
+		addBoundary(socket, introduction);
 
-		console.log(`Connecting boundary with name ${introduction.id}`);
+		console.log(`Connecting boundary with name ${introduction.name}`);
 	}
 	if (isHandler(introduction)) {
 		const payloadValid = verifyPayload(
@@ -36,12 +36,10 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 			);
 		}
 
-		addHandler(introduction.name, socket, introduction);
+		addHandler(socket, introduction);
 
 		console.log(
-			`Connecting Handler with ID ${introduction.name} and methods ${
-				introduction.methods
-			}. Total handlers: ${Object.keys(handlers)}`
+			`Connecting Handler with ID ${introduction.name} and methods ${introduction.methods}`
 		);
 	}
 };

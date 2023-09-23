@@ -26,6 +26,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			...message,
 			timestamp: message.timestamp || new Date().getTime(),
 			boundaryId: socket.id,
+			boundaryName: getBoundary(socket.id)!.name,
 		};
 
 		const id = socket.id;
@@ -54,7 +55,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			immediateArg,
 			namedArgs,
 			boundaryId: socket.id,
-			message,
+			message: newMessage,
 			query,
 			boundaryName: getBoundary(socket.id)!.name,
 			taggedContacts: newMessage.taggedContacts,

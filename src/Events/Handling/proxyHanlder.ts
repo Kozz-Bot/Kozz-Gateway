@@ -29,6 +29,7 @@ export const request_proxy = (_: Socket) => (payload: ProxyRequestPayload) => {
 	}
 };
 
-export const revoke_proxy = (_: Socket) => (payload: ProxyRevokePayload) => {
-	removeProxy(payload.source);
-};
+export const revoke_proxy =
+	(_: Socket) => (payload: ProxyRevokePayload, disconnecting?: boolean) => {
+		removeProxy(payload.source, disconnecting);
+	};

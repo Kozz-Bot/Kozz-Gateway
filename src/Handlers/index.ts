@@ -12,14 +12,10 @@ let handlers: {
 	[key: string]: HandlerInstance;
 } = {};
 
-export const addHandler = (
-	name: string,
-	socket: Socket,
-	introduction: HandlerIntroduction
-) => {
+export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
 	const id = socket.id;
-	if (getHandlerByName(name)) {
-		console.warn(`Reconnecting Handler with name ${name}`);
+	if (getHandlerByName(introduction.name)) {
+		console.warn(`Reconnecting Handler with name ${introduction.name}`);
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };

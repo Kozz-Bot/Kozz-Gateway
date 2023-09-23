@@ -1,74 +1,96 @@
 import { BoundaryInstance, Destination, MessageReceived, Source } from 'kozz-types';
-import { getBoundary, getBoundaryByName } from 'src/Boundaries';
-import { getHandler } from 'src/Handlers';
+import { getBoundaryByName } from 'src/Boundaries';
+import { getHandler, getHandlerByName } from 'src/Handlers';
 
 type ProxyMap = {
-	[key: Source]: Destination;
+	[key: Source]: {
+		keepAlive: boolean;
+		destination: Destination;
+	}[];
 };
 
-const getDestination = (destinationBoundariesId: Destination) => {
-	const destinationBoundariesIdAsArray =
-		typeof destinationBoundariesId === 'string'
-			? [destinationBoundariesId]
-			: destinationBoundariesId;
-
-	return destinationBoundariesIdAsArray
-		.map(id => getBoundaryByName(id) || getHandler(id))
-		.filter((boundary): boundary is BoundaryInstance => !!boundary);
+const getDestination = (destinationName: Destination) => {
+	return getBoundaryByName(destinationName) || getHandlerByName(destinationName);
 };
 
 const proxyMap: ProxyMap = {};
 
-export const upsertProxy = (source: Source, destination: Destination) => {
-	console.log(`upserting proxy: ${source} -> ${destination}`);
-
-	if (proxyMap[source]) {
-		if (destination.length) {
-			proxyMap[source] = [...proxyMap[source], ...destination];
-		}
+export const upsertProxy = (
+	source: Source,
+	destination: Destination,
+	keepAlive?: boolean
+) => {
+	const alreadyHasProxy = proxyMap[source]?.length > 0;
+	if (!alreadyHasProxy) {
+		proxyMap[source] = [];
 	}
 
-	if (typeof destination === 'string') {
-		proxyMap[source] = [destination];
-	} else {
-		proxyMap[source] = [...destination];
-	}
+	const alreadyHasDestination =
+		proxyMap[source].filter(proxy => proxy.destination === destination).length > 0;
+
+	//Proxy is already there, no need to insert it again.
+	if (alreadyHasDestination) return;
+
+	proxyMap[source].push({
+		destination,
+		keepAlive: keepAlive ?? false,
+	});
 };
 
 export const getProxy = (source: Source) => {
 	return proxyMap[source];
 };
 
-export const removeProxy = (source: Source) => {
-	console.log('Revoking proxy from source', source);
+const disconnectedAllProxies = (origin: string, disconnecting?: boolean) => {
+	Object.entries(proxyMap).forEach(([proxySource, proxy]) => {
+		if (disconnecting && proxySource.startsWith(origin)) {
+			proxyMap[proxySource as keyof ProxyMap] = proxy.filter(
+				proxy => !!proxy.keepAlive
+			);
+		} else if (proxySource.startsWith(origin)) {
+			delete proxyMap[proxySource as keyof ProxyMap];
+		}
+	});
+};
 
-	if (source.split('/')[1] === '*') {
-		Object.entries(proxyMap).forEach(() => {
-			delete proxyMap[source as Source];
-		});
+const disconnectProxyByOrigin = (origin: string, disconnecting?: boolean) => {
+	// I know this is indexable because i'm using a if inside `removeProxy`
+	let proxyEntry = proxyMap[origin as keyof ProxyMap];
+
+	if (disconnecting) {
+		proxyEntry = proxyEntry.filter(proxy => !!proxy.keepAlive);
+	} else {
+		delete proxyMap[origin as keyof ProxyMap];
+	}
+};
+
+export const removeProxy = (source: Source, disconnecting?: boolean) => {
+	// if source is `${boundaryName}/*`, delete all proxies from that boundary
+	const [boundary, chat] = source.split('/');
+	if (chat === '*') {
+		disconnectedAllProxies(boundary, disconnecting);
 	} else if (proxyMap[source]) {
-		delete proxyMap[source];
+		disconnectProxyByOrigin(boundary, disconnecting);
 	}
 };
 
 export const useProxy = (message: MessageReceived) => {
-	const proxies = Object.entries(proxyMap).filter(([source, _]) =>
-		source.startsWith(message.boundaryName)
+	// If message was sent to a group, we want to capture the group id, not the author id
+	const messageSource = message.groupName ? message.to : message.from;
+	const proxies = Object.entries(proxyMap).filter(
+		([source, _]) =>
+			source === `${message.boundaryName}/*` ||
+			source === `${message.boundaryName}/${messageSource}`
 	);
 
 	if (!proxies.length) return;
 
-	proxies.forEach(proxy => {
-		const [source, destinationIds] = proxy;
-		const destinations = getDestination(destinationIds);
-		const [_, sourceChatID] = source.split('/');
-
-		if (sourceChatID !== '*' && sourceChatID !== message.to) {
-			return;
-		}
-
-		destinations.forEach(destination => {
-			destination.socket.emit('proxied_message', message);
+	proxies.forEach(entry => {
+		const [_, destinations] = entry;
+		destinations.forEach(proxy => {
+			const destinationEntity = getDestination(proxy.destination);
+			if (!destinationEntity) return;
+			destinationEntity.socket.emit('proxied_message', message);
 		});
 	});
 };
