@@ -703,8 +703,10 @@ jsonc-parser@^3.0.0:
   resolved "https://registry.yarnpkg.com/jsonc-parser/-/jsonc-parser-3.2.0.tgz#31ff3f4c2b9793f89c67212627c51c6394f88e76"
   integrity sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==
 
-kozz-types@../kozz-types/:
-  version "0.0.1"
+kozz-types@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/kozz-types/-/kozz-types-0.1.0.tgz#322d4067869ad08c34477ff24c1878d274806740"
+  integrity sha512-sFeU6D+nTtsb4NLqSP7tb4nEYEzi8Zg/0Ivjsy99OXjQPLVB53HKo/zbGuXOQi4wWRMvY5fp6CGVuVznyKGTrw==
   dependencies:
     link-module-alias "^1.2.0"
 
