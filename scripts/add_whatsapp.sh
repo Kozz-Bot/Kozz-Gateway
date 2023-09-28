@@ -13,7 +13,7 @@ if [ $# -ge 1 ]; then
 
     echo "Cloning boundary from Github"
     cd $two_folders_up
-    git clone https://github.com/Kozz-Bot/kozz-$module_name/
+    git clone git@github.com:Kozz-Bot/Kozz-$module_name.git
 
     # If keys are not generated, generate them
     if [ ! -d "$gw_keys_folder_path" ]; then
