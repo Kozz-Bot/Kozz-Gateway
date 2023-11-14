@@ -11,7 +11,6 @@ if ($args.Count -ge 1) {
 
     Write-Host "Cloning boundary from Github"
     Set-Location $two_folders_up
-    Write-Host $two_folders_up
     git clone "https://github.com/Kozz-Bot/kozz-$module_name/"
 
     # If keys are not generated, generate them
