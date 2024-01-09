@@ -34,7 +34,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 		useProxy(newMessage);
 
-		const command = parse(newMessage.body);
+		const command = parse(newMessage.santizedBody);
 		if (command.isError) {
 			return;
 		}

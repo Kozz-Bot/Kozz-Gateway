@@ -18,7 +18,6 @@ const proxyMap: ProxyMap = {};
 export const upsertProxy = (
 	source: Source,
 	destination: Destination,
-	keepAlive?: boolean
 ) => {
 	const alreadyHasProxy = proxyMap[source]?.length > 0;
 	if (!alreadyHasProxy) {
@@ -33,7 +32,7 @@ export const upsertProxy = (
 
 	proxyMap[source].push({
 		destination,
-		keepAlive: keepAlive ?? false,
+		keepAlive: false,
 	});
 };
 
@@ -54,14 +53,7 @@ const disconnectedAllProxies = (origin: string, disconnecting?: boolean) => {
 };
 
 const disconnectProxyByOrigin = (origin: string, disconnecting?: boolean) => {
-	// I know this is indexable because i'm using a if inside `removeProxy`
-	let proxyEntry = proxyMap[origin as keyof ProxyMap];
-
-	if (disconnecting) {
-		proxyEntry = proxyEntry.filter(proxy => !!proxy.keepAlive);
-	} else {
-		delete proxyMap[origin as keyof ProxyMap];
-	}
+	delete proxyMap[origin as keyof ProxyMap];
 };
 
 export const removeProxy = (source: Source, disconnecting?: boolean) => {
