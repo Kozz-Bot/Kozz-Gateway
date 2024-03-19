@@ -1,16 +1,29 @@
 import { Server } from 'socket.io';
 import { registerSocketEventHandlers } from './Events/Handling';
 
-const megabyte = 1e6;
+type InitServerOptions = {
+	bufferSizeInMB: number;
+	port: number;
+};
 
-const io = new Server(4521, {
-	//Basically unlimited payload size :v
-	maxHttpBufferSize: megabyte * 10000,
-	cors: {
-		origin: '*',
-	},
-});
+export const createServer = ({ bufferSizeInMB, port }: InitServerOptions) => {
+	const megabyte = 1e6;
 
-io.on('connection', socket => {
-	registerSocketEventHandlers(socket);
+	const io = new Server(port, {
+		maxHttpBufferSize: megabyte * bufferSizeInMB,
+		cors: {
+			origin: '*',
+		},
+	});
+
+	io.on('connection', socket => {
+		registerSocketEventHandlers(socket);
+	});
+
+	return io;
+};
+
+createServer({
+	bufferSizeInMB: 256,
+	port: 4521,
 });

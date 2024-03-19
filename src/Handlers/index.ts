@@ -53,8 +53,6 @@ export const addListenerToHandler = (
 		return;
 	}
 
-	console.log('adding listener to event');
-
 	handler.listeners.push({
 		id: new Date().getTime().toString(),
 		eventName,

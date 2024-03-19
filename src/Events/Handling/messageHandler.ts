@@ -6,6 +6,7 @@ import {
 	EditMessagePayload,
 	Command,
 	MessageReceivedByGateway,
+	DeleteMessagePayload,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getHandler } from 'src/Handlers';
@@ -34,7 +35,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 		useProxy(newMessage);
 
-		const command = parse(newMessage.santizedBody);
+		const command = parse(newMessage.santizedBody ?? newMessage.body);
 		if (command.isError) {
 			return;
 		}
@@ -67,9 +68,10 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 	}
 };
 
-const forwardsToBoundary = (eventName: string, payload: { boundaryId: string }) => {
+const forwardsToBoundary = (eventName: string, payload: any) => {
 	const boundaryData =
-		getBoundary(payload.boundaryId) || getBoundaryByName(payload.boundaryId);
+		getBoundary(payload.boundaryId || payload.boundaryName) ||
+		getBoundaryByName(payload.boundaryId || payload.boundaryName);
 	if (!boundaryData) return;
 
 	boundaryData.socket.emit(eventName, payload);
@@ -87,6 +89,11 @@ export const send_message =
 		} else {
 			forwardsToBoundary('send_message', sendMessagePayload);
 		}
+	};
+
+export const delete_message =
+	(socket: Socket) => (deleteMessagePayload: DeleteMessagePayload) => {
+		forwardsToBoundary('delete_message', deleteMessagePayload);
 	};
 
 /**
