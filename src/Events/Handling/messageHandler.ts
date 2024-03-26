@@ -52,7 +52,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 		}
 
 		const commandPayload: Command = {
-			module,
+			//module,
 			method,
 			immediateArg,
 			namedArgs,
