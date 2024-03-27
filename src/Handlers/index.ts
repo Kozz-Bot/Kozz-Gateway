@@ -81,7 +81,8 @@ export const logHandler = (boundary: HandlerInstance) => {
 };
 
 export const removeHandler = (handlerName: string) => {
-	console.log(`Disconnecting handler with id ${handlerName}`);
+	const handler = handlers[handlerName];
+	console.log(`Disconnecting handler with id ${handler.name}`);
 	delete handlers[handlerName];
 };
 

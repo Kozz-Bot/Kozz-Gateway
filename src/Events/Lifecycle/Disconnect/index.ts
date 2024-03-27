@@ -12,7 +12,7 @@ export const addDisconnectHandlers = (
 
 	socket.on('disconnecting', () => {
 		if (isBoundary(introduction)) {
-			removeBoundary(introduction.name);
+			removeBoundary(socket.id);
 			proxyRevoker(
 				{
 					source: `${introduction.name}/*`,
@@ -21,7 +21,7 @@ export const addDisconnectHandlers = (
 			);
 		}
 		if (isHandler(introduction)) {
-			removeHandler(introduction.name);
+			removeHandler(socket.id);
 			proxyRevoker(
 				{
 					source: `${introduction.name}/*`,

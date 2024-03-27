@@ -1,13 +1,11 @@
 import {
 	BoundaryInstance,
 	BoundaryIntroduction,
-	ForwardEventPayload,
 	Introduction,
 } from 'kozz-types/dist';
 import { Socket } from 'socket.io';
 import { createBoundary } from './Boundary';
 import { normalizeString } from 'src/Util';
-import { getAllBoundaries } from 'src/Events/Handling/Getters';
 
 let boundaries: {
 	[key: string]: BoundaryInstance;
