@@ -14,7 +14,7 @@ let boundaries: {
 } = {};
 
 export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
-	const id = socket.id;
+	const id = introduction.name;
 	if (getBoundary(id)) {
 		console.warn(`Reconecting boundary with name ${introduction.name}`);
 	}
@@ -81,9 +81,9 @@ export const removeListenerFromBoundary = (id: string, eventName: string) => {
 	);
 };
 
-export const removeBoundary = (boundaryId: string) => {
-	console.log(`Disconnecting Boundary with id ${boundaryId}`);
-	delete boundaries[boundaryId];
+export const removeBoundary = (boundaryName: string) => {
+	console.log(`Disconnecting Boundary with id ${boundaryName}`);
+	delete boundaries[boundaryName];
 };
 
 export default boundaries;

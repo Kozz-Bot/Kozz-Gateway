@@ -13,9 +13,9 @@ let handlers: {
 } = {};
 
 export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
-	const id = socket.id;
-	if (getHandlerByName(introduction.name)) {
-		console.warn(`Reconnecting Handler with name ${introduction.name}`);
+	const id = introduction.name;
+	if (getHandlerByName(id)) {
+		console.warn(`Reconnecting Handler with name ${id}`);
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
@@ -79,7 +79,7 @@ export const logHandler = (boundary: HandlerInstance) => {
 };
 
 export const removeHandler = (handlerName: string) => {
-	console.log(`Disconnecting handler with name ${handlerName}`);
+	console.log(`Disconnecting handler with id ${handlerName}`);
 	delete handlers[handlerName];
 };
 
