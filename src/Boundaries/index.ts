@@ -14,7 +14,7 @@ let boundaries: {
 } = {};
 
 export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
-	const id = introduction.name;
+	const id = socket.id;
 	if (getBoundary(id)) {
 		console.warn(`Reconecting boundary with name ${introduction.name}`);
 	}

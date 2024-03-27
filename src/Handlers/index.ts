@@ -13,18 +13,20 @@ let handlers: {
 } = {};
 
 export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
-	const id = introduction.name;
-	if (getHandlerByName(id)) {
-		console.warn(`Reconnecting Handler with name ${id}`);
+	const id = socket.id;
+	if (getHandlerByName(introduction.name)) {
+		console.warn(`Reconnecting Handler with name ${introduction.name}`);
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
 
-export const getHandlerByName = (name: string): HandlerInstance | undefined =>
-	Object.values(handlers).find(handler => handler.name === name);
+export const getHandlerByName = (name: string): HandlerInstance | undefined => {
+	return Object.values(handlers).find(handler => handler.name === name);
+};
 
-export const getHandler = (name: string): HandlerInstance | undefined =>
-	Object.values(handlers).find(handler => handler.name === name);
+export const getHandler = (name: string): HandlerInstance | undefined => {
+	return Object.values(handlers).find(handler => handler.id === name);
+};
 
 export const getAllHandlerInstancess = (): HandlerInstance[] =>
 	Object.values(handlers);
