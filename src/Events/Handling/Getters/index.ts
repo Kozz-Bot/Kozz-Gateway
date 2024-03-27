@@ -2,6 +2,7 @@ import { BoundaryInstance, EventListener } from 'kozz-types';
 import { Socket } from 'socket.io';
 import boundaries from 'src/Boundaries';
 import handlers from 'src/Handlers';
+import { getAllProxies } from 'src/Proxies';
 
 type GetBoundaryReturn<GetSocket = false> = {
 	id: string;
@@ -62,3 +63,5 @@ export const getAllHandlers = <GetSocket>(getSocket?: GetSocket) => {
 		};
 	}) as unknown as GetAllHandlersReturn<GetSocket>[];
 };
+
+export const getProxyMap = () => getAllProxies();

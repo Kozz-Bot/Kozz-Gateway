@@ -9,7 +9,7 @@ import {
 	DeleteMessagePayload,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { getHandler } from 'src/Handlers';
+import { getHandler, getHandlerByName } from 'src/Handlers';
 import { parse } from 'src/Parser';
 import { getBoundary, getBoundaryByName } from 'src/Boundaries';
 import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
@@ -40,7 +40,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			return;
 		}
 		const { module, method, immediateArg, namedArgs, query } = command.result;
-		const handler = getHandler(module);
+		const handler = getHandlerByName(module);
 
 		if (!handler) return;
 

@@ -81,9 +81,9 @@ export const removeListenerFromBoundary = (id: string, eventName: string) => {
 	);
 };
 
-export const removeBoundary = (boundaryId: string) => {
-	console.log(`Disconnecting Boundary with id ${boundaryId}`);
-	delete boundaries[boundaryId];
+export const removeBoundary = (boundaryName: string) => {
+	console.log(`Disconnecting Boundary with id ${boundaryName}`);
+	delete boundaries[boundaryName];
 };
 
 export default boundaries;

@@ -20,11 +20,13 @@ export const addHandler = (socket: Socket, introduction: HandlerIntroduction) =>
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
 
-export const getHandlerByName = (name: string): HandlerInstance | undefined =>
-	Object.values(handlers).find(handler => handler.name === name);
+export const getHandlerByName = (name: string): HandlerInstance | undefined => {
+	return Object.values(handlers).find(handler => handler.name === name);
+};
 
-export const getHandler = (name: string): HandlerInstance | undefined =>
-	Object.values(handlers).find(handler => handler.name === name);
+export const getHandler = (name: string): HandlerInstance | undefined => {
+	return Object.values(handlers).find(handler => handler.id === name);
+};
 
 export const getAllHandlerInstancess = (): HandlerInstance[] =>
 	Object.values(handlers);
@@ -79,7 +81,7 @@ export const logHandler = (boundary: HandlerInstance) => {
 };
 
 export const removeHandler = (handlerName: string) => {
-	console.log(`Disconnecting handler with name ${handlerName}`);
+	console.log(`Disconnecting handler with id ${handlerName}`);
 	delete handlers[handlerName];
 };
 

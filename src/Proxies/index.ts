@@ -15,10 +15,7 @@ const getDestination = (destinationName: Destination) => {
 
 const proxyMap: ProxyMap = {};
 
-export const upsertProxy = (
-	source: Source,
-	destination: Destination,
-) => {
+export const upsertProxy = (source: Source, destination: Destination) => {
 	const alreadyHasProxy = proxyMap[source]?.length > 0;
 	if (!alreadyHasProxy) {
 		proxyMap[source] = [];
@@ -35,6 +32,8 @@ export const upsertProxy = (
 		keepAlive: false,
 	});
 };
+
+export const getAllProxies = () => proxyMap;
 
 export const getProxy = (source: Source) => {
 	return proxyMap[source];

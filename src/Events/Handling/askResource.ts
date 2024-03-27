@@ -3,6 +3,7 @@ import { Socket } from 'socket.io';
 import { getBoundary, getBoundaryByName } from '../../Boundaries';
 import { getHandler, getHandlerByName } from '../../Handlers';
 import { getAllBoundaries, getAllHandlers } from './Getters';
+import { getAllProxies } from 'src/Proxies';
 
 export const ask_resource = (socket: Socket) => (payload: AskResourcePayload) => {
 	if (payload.responder.type === 'Handler') {
@@ -69,6 +70,9 @@ const askGateway = (payload: AskResourcePayload) => {
 		}
 		if (payload.request.resource === 'all_modules') {
 			return getAllHandlers();
+		}
+		if (payload.request.resource === 'all_proxies') {
+			return getAllProxies();
 		}
 	})();
 
