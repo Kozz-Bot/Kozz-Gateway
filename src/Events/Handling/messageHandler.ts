@@ -21,14 +21,26 @@ const assertBoundary = (id: string) => {
 	}
 };
 
+const populateMessagePayload = (
+	message: MessageReceived,
+	socket: Socket
+): MessageReceivedByGateway => {
+	const newMessage: MessageReceivedByGateway = {
+		...message,
+		timestamp: message.timestamp || new Date().getTime(),
+		boundaryId: socket.id,
+		boundaryName: getBoundary(socket.id)!.name,
+		quotedMessage: message.quotedMessage
+			? populateMessagePayload(message.quotedMessage, socket)
+			: undefined,
+	};
+
+	return newMessage;
+};
+
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	try {
-		const newMessage: MessageReceivedByGateway = {
-			...message,
-			timestamp: message.timestamp || new Date().getTime(),
-			boundaryId: socket.id,
-			boundaryName: getBoundary(socket.id)!.name,
-		};
+		const newMessage = populateMessagePayload(message, socket);
 
 		const id = socket.id;
 		assertBoundary(id);
