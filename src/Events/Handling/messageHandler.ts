@@ -56,13 +56,6 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 		if (!handler) return;
 
-		if (newMessage.contact.isBlocked) {
-			return socket.emit(
-				'reply_with_text',
-				createMessagePayload(newMessage, 'Você está bloqueado :)')
-			);
-		}
-
 		const commandPayload: Command = {
 			method,
 			immediateArg,
