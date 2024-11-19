@@ -9,10 +9,13 @@ import {
 	DeleteMessagePayload,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { getHandler, getHandlerByName } from 'src/Handlers';
+import { getHandlerByName } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import { getBoundary, getBoundaryByName } from 'src/Boundaries';
-import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
+import {
+	getAllBoundaryInstances,
+	getBoundary,
+	getBoundaryByName,
+} from 'src/Boundaries';
 import { useProxy } from 'src/Proxies';
 
 const assertBoundary = (id: string) => {
@@ -78,7 +81,6 @@ const forwardsToBoundary = (eventName: string, payload: any) => {
 		getBoundary(payload.boundaryId || payload.boundaryName) ||
 		getBoundaryByName(payload.boundaryId || payload.boundaryName);
 	if (!boundaryData) return;
-
 	boundaryData.socket.emit(eventName, payload);
 };
 
