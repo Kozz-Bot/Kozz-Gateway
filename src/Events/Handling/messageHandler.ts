@@ -7,6 +7,7 @@ import {
 	Command,
 	MessageReceivedByGateway,
 	DeleteMessagePayload,
+	NewMessage,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
 import { getHandlerByName } from 'src/Handlers';
@@ -82,6 +83,23 @@ const forwardsToBoundary = (eventName: string, payload: any) => {
 		getBoundaryByName(payload.boundaryId || payload.boundaryName);
 	if (!boundaryData) return;
 	boundaryData.socket.emit(eventName, payload);
+};
+
+/**
+ * Forwards the request to the provided boundary
+ * @param socket
+ * @returns
+ */
+export const new_message = (socket: Socket) => (newMessagePayload: NewMessage) => {
+	const author = getBoundary(socket.id);
+	if (!author) {
+		return console.warn('[new_message]: No author for the message was found');
+	}
+
+	forwardsToBoundary('new_message', {
+		...newMessagePayload,
+		author: author.name,
+	});
 };
 
 /**
