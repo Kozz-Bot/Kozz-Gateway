@@ -708,10 +708,10 @@ jsonc-parser@^3.0.0:
   resolved "https://registry.npmjs.org/jsonc-parser/-/jsonc-parser-3.2.0.tgz"
   integrity sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==
 
-kozz-types@^0.1.14:
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/kozz-types/-/kozz-types-0.1.14.tgz#82edb5e6e95757d5e8462f11c1685e7985c4765e"
-  integrity sha512-NbP3qVqmIDvUu5Bg2sHd4nuM+v75tulhen2HIz1e+McMPbzGkFzIUkyQ3a2u4HBa0oFpOHY/C/ONKZsmbT9T+w==
+"kozz-types@^0.1.14":
+  "integrity" "sha512-NbP3qVqmIDvUu5Bg2sHd4nuM+v75tulhen2HIz1e+McMPbzGkFzIUkyQ3a2u4HBa0oFpOHY/C/ONKZsmbT9T+w=="
+  "resolved" "https://registry.npmjs.org/kozz-types/-/kozz-types-0.1.14.tgz"
+  "version" "0.1.14"
   dependencies:
     link-module-alias "^1.2.0"
 
