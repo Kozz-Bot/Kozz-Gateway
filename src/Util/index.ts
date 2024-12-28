@@ -47,3 +47,19 @@ export const removeSignatureFromPayload = <T extends Record<string, any>>(
 export function normalizeString(string: string) {
 	return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
+
+export const timedDelay=(timeJson:{hours?:number,minutes?:number,seconds?:number,miliseconds?:number})=>{
+
+	const factor= {
+        hour:3600000,
+        minute:60000,
+        second:1000,
+        milisecond:1
+    }
+	const delayMilisec = factor.hour*(timeJson.hours ? timeJson.hours:0)
+                        + factor.minute*(timeJson.minutes ? timeJson.minutes:0)
+                        + factor.second*(timeJson.seconds ? timeJson.seconds:0)
+                        + factor.milisecond*(timeJson.miliseconds ? timeJson.miliseconds:0);
+
+	setTimeout(()=>{process.exit(0);}, delayMilisec)
+}
