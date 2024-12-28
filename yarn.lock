@@ -719,10 +719,10 @@
   "resolved" "https://registry.npmjs.org/jsonc-parser/-/jsonc-parser-3.2.0.tgz"
   "version" "3.2.0"
 
-"kozz-types@^0.1.7":
-  "integrity" "sha512-akhXnuQOFgNpy1c75OjbPj4GczyFBCs3XxztfZ7eM4vOYJR/gPoeX9O9NSAF5a/UvUFAH5/RKzgIgoqslwQPwQ=="
-  "resolved" "https://registry.npmjs.org/kozz-types/-/kozz-types-0.1.7.tgz"
-  "version" "0.1.7"
+"kozz-types@^0.1.14":
+  "integrity" "sha512-NbP3qVqmIDvUu5Bg2sHd4nuM+v75tulhen2HIz1e+McMPbzGkFzIUkyQ3a2u4HBa0oFpOHY/C/ONKZsmbT9T+w=="
+  "resolved" "https://registry.npmjs.org/kozz-types/-/kozz-types-0.1.14.tgz"
+  "version" "0.1.14"
   dependencies:
     "link-module-alias" "^1.2.0"
 
