@@ -7,7 +7,7 @@ export const createMessagePayload = (
 	return {
 		body: text,
 		chatId: message.fromHostAccount ? message.to : message.from,
-		platform: 'WA',
+		platform: 'other',
 		timestamp: new Date().getTime(),
 		quoteId: message.id,
 		boundaryId: 'AAA',

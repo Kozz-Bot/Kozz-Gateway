@@ -13,12 +13,6 @@ export const addDisconnectHandlers = (
 	socket.on('disconnecting', () => {
 		if (isBoundary(introduction)) {
 			removeBoundary(socket.id);
-			proxyRevoker(
-				{
-					source: `${introduction.name}/*`,
-				},
-				true
-			);
 		}
 		if (isHandler(introduction)) {
 			removeHandler(socket.id);

@@ -7,7 +7,6 @@ import {
 	choice,
 	str,
 	possibly,
-	anythingExcept,
 	Parser,
 	regex,
 } from 'arcsecond';
@@ -97,7 +96,6 @@ const parser = sequenceOf([
  */
 export const parse = (s: string) => {
 	const result = parser.run(s);
-
 
 	const stringLeft = result.isError
 		? s.slice(result.index - 1, result.index + 20) + '...'

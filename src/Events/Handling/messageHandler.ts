@@ -7,12 +7,16 @@ import {
 	Command,
 	MessageReceivedByGateway,
 	DeleteMessagePayload,
+	NewMessage,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { getHandler, getHandlerByName } from 'src/Handlers';
+import { getHandlerByName } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import { getBoundary, getBoundaryByName } from 'src/Boundaries';
-import { createMessagePayload } from 'src/Payload/Creation/MessageReply';
+import {
+	getAllBoundaryInstances,
+	getBoundary,
+	getBoundaryByName,
+} from 'src/Boundaries';
 import { useProxy } from 'src/Proxies';
 
 const assertBoundary = (id: string) => {
@@ -56,13 +60,6 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 
 		if (!handler) return;
 
-		if (newMessage.contact.isBlocked) {
-			return socket.emit(
-				'reply_with_text',
-				createMessagePayload(newMessage, 'Você está bloqueado :)')
-			);
-		}
-
 		const commandPayload: Command = {
 			module,
 			method,
@@ -86,8 +83,24 @@ const forwardsToBoundary = (eventName: string, payload: any) => {
 		getBoundary(payload.boundaryId || payload.boundaryName) ||
 		getBoundaryByName(payload.boundaryId || payload.boundaryName);
 	if (!boundaryData) return;
-
 	boundaryData.socket.emit(eventName, payload);
+};
+
+/**
+ * Forwards the request to the provided boundary
+ * @param socket
+ * @returns
+ */
+export const new_message = (socket: Socket) => (newMessagePayload: NewMessage) => {
+	const author = getBoundary(socket.id);
+	if (!author) {
+		return console.warn('[new_message]: No author for the message was found');
+	}
+
+	forwardsToBoundary('new_message', {
+		...newMessagePayload,
+		author: author.name,
+	});
 };
 
 /**
