@@ -29,6 +29,8 @@ createServer({
 	port: 4521,
 });
 
+console.log("Gateway ready")
+
 /*
 timedDelay({
     hours:12,
