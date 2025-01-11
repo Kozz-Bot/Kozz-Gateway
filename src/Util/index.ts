@@ -63,3 +63,10 @@ export const timedDelay=(timeJson:{hours?:number,minutes?:number,seconds?:number
 
 	setTimeout(()=>{process.exit(0);}, delayMilisec)
 }
+
+export const delay = (miliseconds: number,description?:string) =>{
+	return new Promise( resolve => {
+	  setTimeout(resolve, miliseconds);
+		
+	} );
+}
