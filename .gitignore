@@ -3,3 +3,5 @@ dist
 coverage
 keys/*
 server
+.env
+.env.dev

@@ -61,6 +61,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 		if (!handler) return;
 
 		const commandPayload: Command = {
+			module,
 			method,
 			immediateArg,
 			namedArgs,

@@ -13,12 +13,13 @@ import {
 	removeListenerFromHandler,
 } from 'src/Handlers';
 import { getAllBoundaries, getAllHandlers } from './Getters';
+import { delay } from 'src/Util';
 
-export const event_forward_request =
+export const event_forward_request = 
 	(socket: Socket) =>
-	({ sourceId, destination, eventName }: ForwardEventPayload) => {
+	async ({ sourceId, destination, eventName }: ForwardEventPayload) => {
 		const { type, id } = destination;
-
+		await delay(5000);
 		if (type === 'Boundary' && getBoundaryByName(id)) {
 			addListenerToBoundary(destination.id, eventName, sourceId);
 		} else if (type === 'Handler' && getHandlerByName(id)) {
@@ -53,6 +54,7 @@ export const event_forward_revoke =
 export const forward_event =
 	(socket: Socket) =>
 	({ eventName, payload }: ForwardedEventPayload) => {
+		//chamadas quando manda emit forward_event
 		const sourceName = getHandler(socket.id)
 			? getHandler(socket.id)?.name
 			: getBoundary(socket.id)?.name;
@@ -60,34 +62,33 @@ export const forward_event =
 		if (!sourceName) {
 			return console.warn('Invalid source name');
 		}
-
-		const [allBoundaries, allHandlers] = [
-			getAllBoundaries(true),
-			getAllHandlers(true),
-		];
-
-		allBoundaries.forEach(entity => {
-			const isListeningToEvent = entity.boundary.listeners.find(
-				event => event.eventName === eventName && event.source === sourceName
-			);
-			if (isListeningToEvent) {
-				entity.boundary.socket?.emit('forwarded_event', {
-					eventName,
-					payload,
-				});
-			}
+		
+		getAllBoundaries(true).filter((entity:any) => {
+			return entity.boundary.listeners.some(
+				(listener:any) => listener.eventName === eventName
+				&& (listener.source == '*'
+					|| listener.source == sourceName
+				) )
+		}).forEach(entity => {
+			entity.boundary.socket?.emit('forwarded_event', {
+				eventName,
+				payload,
+			});
+			
+		});
+		
+		getAllHandlers(true).filter((entity:any) => {
+			return entity.handler.listeners.some(
+				(listener:any) => listener.eventName === eventName
+				&& (listener.source == '*'
+					|| listener.source == sourceName
+				) )
+		}).forEach(entity => {
+			entity.handler.socket?.emit('forwarded_event', {
+				eventName,
+				payload,
+			});
+			
 		});
 
-		allHandlers.forEach(entity => {
-			const isListeningToEvent = entity.handler.listeners.find(
-				event => event.eventName === eventName && event.source === sourceName
-			);
-
-			if (isListeningToEvent) {
-				entity.handler.socket?.emit('forwarded_event', {
-					eventName,
-					payload,
-				});
-			}
-		});
 	};

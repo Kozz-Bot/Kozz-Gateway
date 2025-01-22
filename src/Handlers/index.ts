@@ -25,7 +25,7 @@ export const getHandlerByName = (name: string): HandlerInstance | undefined => {
 };
 
 export const getHandler = (name: string): HandlerInstance | undefined => {
-	return Object.values(handlers).find(handler => handler.id === name);
+	return Object.values(handlers).find(handler => handler.name === name);
 };
 
 export const getAllHandlerInstancess = (): HandlerInstance[] =>

@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { registerSocketEventHandlers } from './Events/Handling';
+import { timedDelay } from './Util/index';
 
 type InitServerOptions = {
 	bufferSizeInMB: number;
@@ -27,3 +28,14 @@ createServer({
 	bufferSizeInMB: 256,
 	port: 4521,
 });
+
+console.log("Gateway ready")
+
+/*
+timedDelay({
+    hours:12,
+    minutes:0,
+    seconds:0,
+    miliseconds:0
+})
+	*/
