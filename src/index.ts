@@ -27,3 +27,5 @@ createServer({
 	bufferSizeInMB: 256,
 	port: 4521,
 });
+
+console.log('Gateway ready');

@@ -7,6 +7,7 @@
 	"scripts": {
 		"dev": "tsc && link-module-alias && concurrently \"tsc --watch\" \"nodemon dist/index.js\" || concurrently \"tsc --watch\" \"nodemon dist/index.js\"",
 		"start": "tsc && link-module-alias && node dist/index.js",
+		"startdev": "tsc && link-module-alias && node -r dotenv/config dist/index.js dotenv_config_path=./.env.dev",
 		"test": "jest",
 		"docs": "typedoc ./src/index.ts",
 		"build": "tsc",
