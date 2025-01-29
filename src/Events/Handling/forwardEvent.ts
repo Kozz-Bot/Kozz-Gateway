@@ -56,8 +56,6 @@ export const forward_event =
 	({ eventName, payload }: ForwardedEventPayload) => {
 		const source = (getBoundary(socket.id) || getHandler(socket.id))?.name;
 
-		console.log('Forwarding event', { eventName, payload, source });
-
 		const allBoundaries = getAllBoundaries(true);
 		allBoundaries.forEach(boundary => {
 			const isListening = boundary.boundary.listeners.some(
