@@ -16,8 +16,6 @@ type Introduction_Ack =
 	  };
 
 export const introduction = (socket: Socket) => (introduction: Introduction) => {
-	console.log({ introduction });
-
 	addDisconnectHandlers(socket, introduction);
 
 	if (isBoundary(introduction)) {

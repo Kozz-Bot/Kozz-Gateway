@@ -45,7 +45,7 @@ export const addListenerToBoundary = (
 	eventName: string,
 	sourceId: string
 ) => {
-	const boundary = getBoundary(destinationId);
+	const boundary = getBoundary(destinationId) || getBoundaryByName(destinationId);
 
 	if (!boundary) {
 		return console.warn(
