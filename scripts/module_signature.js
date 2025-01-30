@@ -33,7 +33,6 @@ const signature = crypto.sign(
 	{ key: privateKey, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }
 );
 
-console.log('This is the payload you have to paste on postman');
 console.log({
 	...payload,
 	signature: signature.toString('base64'),
