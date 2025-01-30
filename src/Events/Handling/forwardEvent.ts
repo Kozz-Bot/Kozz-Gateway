@@ -54,32 +54,44 @@ export const event_forward_revoke =
 export const forward_event =
 	(socket: Socket) =>
 	({ eventName, payload }: ForwardedEventPayload) => {
-		const source = (getBoundary(socket.id) || getHandler(socket.id))?.name;
+		try {
+			const source = (getBoundary(socket.id) || getHandler(socket.id))?.name;
 
-		const allBoundaries = getAllBoundaries(true);
-		allBoundaries.forEach(boundary => {
-			const isListening = boundary.boundary.listeners.some(
-				listener => listener.eventName === eventName && listener.source === source
-			);
+			console.log({ eventName, payload, source });
 
-			if (isListening) {
-				boundary.boundary.socket.emit('forwarded_event', {
-					eventName,
-					payload,
-				});
-			}
-		});
+			const allBoundaries = getAllBoundaries(true);
+			allBoundaries.forEach(boundary => {
+				const isListening = boundary.boundary.listeners.some(
+					listener => listener.eventName === eventName && listener.source === source
+				);
 
-		const allHandlers = getAllHandlers(true);
-		allHandlers.forEach(handler => {
-			const isListening = handler.handler.listeners.some(
-				listener => listener.eventName === eventName && listener.source === source
-			);
-			if (isListening) {
-				handler.handler.socket.emit('forwardedEvent', {
-					eventName,
-					payload,
-				});
-			}
-		});
+				if (isListening) {
+					boundary.boundary.socket.emit('forwarded_event', {
+						eventName,
+						payload,
+					});
+				}
+			});
+
+			const allHandlers = getAllHandlers(true);
+			allHandlers.forEach(handler => {
+				const isListening = handler.handler.listeners.some(
+					listener => listener.eventName === eventName && listener.source === source
+				);
+
+				console.log(handler.handler.socket.id);
+				console.log(handler.handler.listeners);
+
+				console.log(handler.name, 'is listening?', isListening);
+
+				if (isListening) {
+					handler.handler.socket.emit('forwarded_event', {
+						eventName,
+						payload,
+					});
+				}
+			});
+		} catch (e) {
+			console.warn(e);
+		}
 	};
