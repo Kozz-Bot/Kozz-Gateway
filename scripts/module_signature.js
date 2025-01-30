@@ -11,7 +11,7 @@ const payload = {
 	// If you are signing a command handler, insert the command names in the array;
 	methods: [],
 	name: moduleName,
-	role: 'module',
+	role: 'handler',
 };
 
 let privateKey;
