@@ -7,9 +7,22 @@ if (!boundaryName) {
 	process.exit(1);
 }
 
+function getOS() {
+	const platform = process.platform;
+	if (platform === 'win32') {
+		return 'windows';
+	} else if (platform === 'linux') {
+		return 'linux';
+	} else if (platform === 'darwin') {
+		return 'mac';
+	} else {
+		return 'unknown';
+	}
+}
+
 const payload = {
-	OS: 'windows',
-	platform: 'WA',
+	OS: getOS(),
+	platform: 'baileys',
 	name: boundaryName,
 	role: 'boundary',
 };
@@ -33,7 +46,6 @@ const signature = crypto.sign(
 	{ key: privateKey, padding: crypto.constants.RSA_PKCS1_PSS_PADDING }
 );
 
-console.log('This is the payload you have to paste on postman');
 console.log(
 	JSON.stringify(
 		{

@@ -62,8 +62,6 @@ export const forward_event =
 				listener => listener.eventName === eventName && listener.source === source
 			);
 
-			console.log(`boundary ${boundary.boundary.name} is listening? ${isListening}`);
-
 			if (isListening) {
 				boundary.boundary.socket.emit('forwarded_event', {
 					eventName,
