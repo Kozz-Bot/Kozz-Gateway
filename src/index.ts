@@ -26,7 +26,7 @@ export const createServer = ({ bufferSizeInMB, port }: InitServerOptions) => {
 };
 
 const runBoundarySignatureScript = () => {
-	exec('node ./scripts/boundary_signature.js kozz-iwac', (error, stdout, stderr) => {
+	exec('node ./scripts/module_signature.js kozz-iwac', (error, stdout, stderr) => {
 		if (error) {
 			console.warn(`Error executing script: ${error.message}`);
 			return;

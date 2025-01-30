@@ -1,8 +1,8 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-const handlerName = process.argv[2];
-if (!handlerName) {
+const moduleName = process.argv[2];
+if (!moduleName) {
 	console.error('handler name not provided');
 	process.exit(1);
 }
@@ -10,8 +10,8 @@ if (!handlerName) {
 const payload = {
 	// If you are signing a command handler, insert the command names in the array;
 	methods: [],
-	name: handlerName,
-	role: 'handler',
+	name: moduleName,
+	role: 'module',
 };
 
 let privateKey;
