@@ -26,23 +26,20 @@ export const createServer = ({ bufferSizeInMB, port }: InitServerOptions) => {
 };
 
 const runBoundarySignatureScript = () => {
-	exec(
-		'node ./scripts/boundary_signature.js kozz-baileys',
-		(error, stdout, stderr) => {
-			if (error) {
-				console.warn(`Error executing script: ${error.message}`);
-				return;
-			}
-			if (stderr) {
-				console.warn(`Script stderr: ${stderr}`);
-				return;
-			}
-
-			console.log('Adding introduction payload to keychain');
-
-			keytar.setPassword('kozz-iwac', 'introduction', stdout);
+	exec('node ./scripts/boundary_signature.js kozz-iwac', (error, stdout, stderr) => {
+		if (error) {
+			console.warn(`Error executing script: ${error.message}`);
+			return;
 		}
-	);
+		if (stderr) {
+			console.warn(`Script stderr: ${stderr}`);
+			return;
+		}
+
+		console.log('Adding introduction payload to keychain');
+
+		keytar.setPassword('kozz-iwac', 'introduction', stdout);
+	});
 };
 
 runBoundarySignatureScript();
