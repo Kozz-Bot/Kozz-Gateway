@@ -14,8 +14,10 @@ let handlers: {
 
 export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
 	const id = socket.id;
-	if (getHandlerByName(introduction.name)) {
+	const oldHandler = getHandlerByName(introduction.name);
+	if (oldHandler) {
 		console.warn(`Reconnecting Handler with name ${introduction.name}`);
+		delete handlers[oldHandler.id];
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };
@@ -49,6 +51,10 @@ export const addListenerToHandler = (
 			`Tried to register listener for event ${eventName} in non-existent handler ${destinationId}`
 		);
 	}
+
+	console.log(
+		`Handler ${handler.name} is requesting to listen to events ${eventName} from ${sourceId}`
+	);
 
 	//If is already listening listening to the event, do nothing;
 	if (handler.listeners.find(ev => ev.eventName === eventName)) {

@@ -25,7 +25,11 @@ export const event_forward_request =
 		} else if (type === 'Handler' && getHandlerByName(id)) {
 			addListenerToHandler(destination.id, eventName, sourceId);
 		} else {
-			console.warn('Wrong payload');
+			console.warn('Wrong payload when trying to request event listening', {
+				sourceId,
+				destination,
+				eventName,
+			});
 		}
 	};
 
@@ -75,8 +79,9 @@ export const forward_event =
 			const isListening = handler.handler.listeners.some(
 				listener => listener.eventName === eventName && listener.source === source
 			);
+
 			if (isListening) {
-				handler.handler.socket.emit('forwardedEvent', {
+				handler.handler.socket.emit('forwarded_event', {
 					eventName,
 					payload,
 				});

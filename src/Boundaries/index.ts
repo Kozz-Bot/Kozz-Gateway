@@ -13,8 +13,10 @@ let boundaries: {
 
 export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
 	const id = socket.id;
-	if (getBoundary(id)) {
+	const oldBoundary = getBoundaryByName(introduction.name);
+	if (oldBoundary) {
 		console.warn(`Reconecting boundary with name ${introduction.name}`);
+		delete boundaries[oldBoundary.id];
 	}
 	boundaries[id] = createBoundary({ id, socket, ...introduction });
 };
