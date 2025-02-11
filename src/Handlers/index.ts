@@ -14,10 +14,10 @@ let handlers: {
 
 export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
 	const id = socket.id;
-	const oldHandler = getHandlerByName(introduction.name);
-	if (oldHandler) {
+	const oldHandlerConnection = getHandlerByName(introduction.name);
+	if (oldHandlerConnection) {
 		console.warn(`Reconnecting Handler with name ${introduction.name}`);
-		delete handlers[oldHandler.id];
+		delete handlers[oldHandlerConnection.id];
 	}
 	handlers[id] = createHandler({ id, socket, ...introduction });
 };

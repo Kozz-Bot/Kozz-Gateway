@@ -13,12 +13,14 @@ let boundaries: {
 
 export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
 	const id = socket.id;
-	const oldBoundary = getBoundaryByName(introduction.name);
-	if (oldBoundary) {
-		console.warn(`Reconecting boundary with name ${introduction.name}`);
-		delete boundaries[oldBoundary.id];
+	const oldBoundaryConnection = getBoundaryByName(introduction.name);
+	if (oldBoundaryConnection) {
+		console.warn(`Reconnecting Boundary with name ${introduction.name}`);
+		delete boundaries[oldBoundaryConnection.id];
+		boundaries[id] = oldBoundaryConnection;
+	} else {
+		boundaries[id] = createBoundary({ id, socket, ...introduction });
 	}
-	boundaries[id] = createBoundary({ id, socket, ...introduction });
 };
 
 export const getBoundary = (id: string): BoundaryInstance | undefined =>
