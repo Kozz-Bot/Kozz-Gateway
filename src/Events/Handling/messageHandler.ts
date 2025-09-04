@@ -82,6 +82,7 @@ const forwardsToBoundary = (eventName: string, payload: any) => {
 	const boundaryData =
 		getBoundary(payload.boundaryId || payload.boundaryName) ||
 		getBoundaryByName(payload.boundaryId || payload.boundaryName);
+	console.log(`Forwarding event ${eventName} to boundary ${boundaryData?.name}`);
 	if (!boundaryData) return;
 	boundaryData.socket.emit(eventName, payload);
 };

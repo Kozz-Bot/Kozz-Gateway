@@ -18,6 +18,10 @@ type Introduction_Ack =
 export const introduction = (socket: Socket) => (introduction: Introduction) => {
 	addDisconnectHandlers(socket, introduction);
 
+	if (introduction.role === 'Dashboard') {
+		return;
+	}
+
 	if (isBoundary(introduction)) {
 		const payloadValid = verifyPayload(
 			removeSignatureFromPayload(introduction),
