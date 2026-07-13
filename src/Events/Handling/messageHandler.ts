@@ -10,7 +10,11 @@ import {
 	NewMessage,
 } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { getHandlerByName } from 'src/Handlers';
+import {
+	getCommandAlias,
+	getCommandAliasTargetModule,
+	getHandlerByName,
+} from 'src/Handlers';
 import { parse } from 'src/Parser';
 import {
 	getAllBoundaryInstances,
@@ -42,6 +46,36 @@ const populateMessagePayload = (
 	return newMessage;
 };
 
+const appendImmediateArg = (
+	targetImmediateArg: string | null | undefined,
+	incomingQuery: string
+) => {
+	const immediateArg = [targetImmediateArg || '', incomingQuery]
+		.map(value => value.trim())
+		.filter(Boolean)
+		.join(' ');
+
+	return immediateArg || null;
+};
+
+const mergeNamedArgs = (
+	targetNamedArgs: Record<string, string | number | boolean> | undefined,
+	incomingNamedArgs: Record<string, string | number | boolean> | null
+) => {
+	const namedArgs = {
+		...(targetNamedArgs || {}),
+		...(incomingNamedArgs || {}),
+	};
+
+	return Object.keys(namedArgs).length ? namedArgs : null;
+};
+
+const getQuery = (method: string, immediateArg: string | null) => {
+	return method !== 'default'
+		? `${method} ${immediateArg || ''}`.trim()
+		: immediateArg ?? '';
+};
+
 export const message = (socket: Socket) => (message: MessageReceived) => {
 	try {
 		const newMessage = populateMessagePayload(message, socket);
@@ -56,18 +90,29 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			return;
 		}
 		const { module, method, immediateArg, namedArgs, query } = command.result;
-		const handler = getHandlerByName(module);
+		const alias = getCommandAlias(module);
+		const target = alias?.alias.target;
+		const targetModule = alias ? getCommandAliasTargetModule(alias) : module;
+		const targetMethod = target?.method || method;
+		const targetImmediateArg = target
+			? appendImmediateArg(target.immediateArg, query)
+			: immediateArg;
+		const targetNamedArgs = target
+			? mergeNamedArgs(target.namedArgs, namedArgs)
+			: namedArgs;
+		const targetQuery = getQuery(targetMethod, targetImmediateArg);
+		const handler = getHandlerByName(targetModule);
 
 		if (!handler) return;
 
 		const commandPayload: Command = {
-			module,
-			method,
-			immediateArg,
-			namedArgs,
+			module: targetModule,
+			method: targetMethod,
+			immediateArg: targetImmediateArg,
+			namedArgs: targetNamedArgs,
 			boundaryId: socket.id,
 			message: newMessage,
-			query,
+			query: targetQuery,
 			boundaryName: getBoundary(socket.id)!.name,
 			taggedContacts: newMessage.taggedContacts,
 		};

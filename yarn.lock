@@ -1670,10 +1670,10 @@ keytar@^7.9.0:
     node-addon-api "^4.3.0"
     prebuild-install "^7.0.1"
 
-kozz-types@^0.1.22:
-  version "0.1.22"
-  resolved "https://registry.npmjs.org/kozz-types/-/kozz-types-0.1.22.tgz"
-  integrity sha512-0wiz80moEJWHFKCo9zNKrSm28a3827/5H6r4Ac2wpO77gpAlTN0sMkgLq+PqInOzROo6wGrjbbIAjiJNXx7kBg==
+kozz-types@^0.1.23:
+  version "0.1.23"
+  resolved "https://registry.npmjs.org/kozz-types/-/kozz-types-0.1.23.tgz"
+  integrity sha512-zUkJYNAow5OCbyuInuGdkP9bjVDW+83mX3b/pODrQYeBDXr5j6TjiBp3dK58lAfUgJJn+dL2G9S351dcZ0u6zA==
   dependencies:
     link-module-alias "^1.2.0"
 
