@@ -6,6 +6,8 @@ import * as proxyHandlers from './proxyHanlder';
 import * as askingResourceHandlers from './askResource';
 import * as chatEvents from './chatEvents';
 import * as eventForwarding from './forwardEvent';
+import * as panelModuleCommand from './panelModuleCommand';
+import * as panelProxySubscription from './panelProxySubscription';
 
 export const registerSocketEventHandlers = (socket: Socket) => {
 	Object.entries({
@@ -15,6 +17,8 @@ export const registerSocketEventHandlers = (socket: Socket) => {
 		...askingResourceHandlers,
 		...chatEvents,
 		...eventForwarding,
+		...panelModuleCommand,
+		...panelProxySubscription,
 	}).forEach(([evName, handler]) => {
 		socket.on(evName, handler(socket));
 	});

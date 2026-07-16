@@ -1,5 +1,6 @@
 import { json } from '@codemirror/lang-json';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView } from '@codemirror/view';
 import { useTheme } from '@emotion/react';
 
 export const useCodeFieldBehavior = ({
@@ -12,7 +13,7 @@ export const useCodeFieldBehavior = ({
 	const theme = useTheme();
 
 	return {
-		extensions: [json()],
+		extensions: [json(), EditorView.lineWrapping],
 		onChange,
 		codeMirrorTheme: (theme.name === 'dark' ? oneDark : 'light') as never,
 		value,

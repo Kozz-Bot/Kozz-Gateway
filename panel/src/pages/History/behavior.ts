@@ -3,6 +3,6 @@ import { HistoryList } from '@/components/HistoryList';
 
 export const useHistoryBehavior = ({ model }: { model: AppModel }) => ({
 	HistoryList,
-	entries: model.history,
+	historyStore: model.historyStore,
 	onFlush: model.flushHistory,
 });

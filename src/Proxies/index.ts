@@ -1,6 +1,7 @@
 import { BoundaryInstance, Destination, MessageReceived, Source } from 'kozz-types';
 import { getBoundaryByName } from 'src/Boundaries';
 import { getHandler, getHandlerByName } from 'src/Handlers';
+import { notifyPanelProxySubscribers } from 'src/PanelProxySubscriptions';
 
 type ProxyMap = {
 	[key: Source]: {
@@ -77,7 +78,12 @@ export const useProxy = (message: MessageReceived) => {
 	if (!proxies.length) return;
 
 	proxies.forEach(entry => {
-		const [_, destinations] = entry;
+		const [source, destinations] = entry;
+		notifyPanelProxySubscribers({
+			destinations: destinations.map(proxy => proxy.destination),
+			message,
+			source,
+		});
 		destinations.forEach(proxy => {
 			const destinationEntity = getDestination(proxy.destination);
 			if (!destinationEntity) return;

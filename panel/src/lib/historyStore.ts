@@ -6,19 +6,27 @@ export type HistoryEntry = {
 	createdAt: number;
 };
 
-type Listener = (entries: HistoryEntry[]) => void;
+type Listener = () => void;
 
 const DB_NAME = 'kozz-gw-panel';
 const STORE_NAME = 'history';
+const CREATED_AT_INDEX = 'createdAt';
 
 const openDatabase = () =>
 	new Promise<IDBDatabase>((resolve, reject) => {
-		const request = indexedDB.open(DB_NAME, 1);
+		const request = indexedDB.open(DB_NAME, 2);
 
 		request.onupgradeneeded = () => {
 			const db = request.result;
 			if (!db.objectStoreNames.contains(STORE_NAME)) {
-				db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+				const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+				store.createIndex(CREATED_AT_INDEX, CREATED_AT_INDEX);
+				return;
+			}
+
+			const store = request.transaction?.objectStore(STORE_NAME);
+			if (store && !store.indexNames.contains(CREATED_AT_INDEX)) {
+				store.createIndex(CREATED_AT_INDEX, CREATED_AT_INDEX);
 			}
 		};
 		request.onsuccess = () => resolve(request.result);
@@ -37,24 +45,68 @@ export const createHistoryStore = () => {
 		return dbPromise;
 	};
 
-	const list = async () => {
+	const count = async () => {
 		const db = await getDb();
-		return new Promise<HistoryEntry[]>((resolve, reject) => {
+		return new Promise<number>((resolve, reject) => {
 			const transaction = db.transaction(STORE_NAME, 'readonly');
-			const request = transaction.objectStore(STORE_NAME).getAll();
-			request.onsuccess = () =>
-				resolve(
-					(request.result as HistoryEntry[]).sort(
-						(a, b) => b.createdAt - a.createdAt
-					)
-				);
+			const request = transaction.objectStore(STORE_NAME).count();
+			request.onsuccess = () => resolve(request.result);
 			request.onerror = () => reject(request.error);
 		});
 	};
 
-	const notify = async () => {
-		const entries = await list();
-		listeners.forEach(listener => listener(entries));
+	const listPage = async ({
+		limit,
+		offset,
+		query,
+	}: {
+		limit: number;
+		offset: number;
+		query?: string;
+	}) => {
+		const db = await getDb();
+		const normalizedQuery = query?.trim().toLowerCase() || '';
+
+		return new Promise<HistoryEntry[]>((resolve, reject) => {
+			const transaction = db.transaction(STORE_NAME, 'readonly');
+			const store = transaction.objectStore(STORE_NAME);
+			const source = store.indexNames.contains(CREATED_AT_INDEX)
+				? store.index(CREATED_AT_INDEX)
+				: store;
+			const request = source.openCursor(null, 'prev');
+			const entries: HistoryEntry[] = [];
+			let skipped = 0;
+
+			request.onsuccess = () => {
+				const cursor = request.result;
+				if (!cursor || entries.length >= limit) {
+					resolve(entries);
+					return;
+				}
+
+				const entry = cursor.value as HistoryEntry;
+				const matchesQuery =
+					!normalizedQuery ||
+					`${entry.type} ${entry.title} ${JSON.stringify(entry.payload)}`
+						.toLowerCase()
+						.includes(normalizedQuery);
+
+				if (matchesQuery) {
+					if (skipped < offset) {
+						skipped += 1;
+					} else {
+						entries.push(entry);
+					}
+				}
+
+				cursor.continue();
+			};
+			request.onerror = () => reject(request.error);
+		});
+	};
+
+	const notify = () => {
+		listeners.forEach(listener => listener());
 	};
 
 	const add = async (entry: Omit<HistoryEntry, 'id' | 'createdAt'>) => {
@@ -71,7 +123,7 @@ export const createHistoryStore = () => {
 			request.onsuccess = () => resolve();
 			request.onerror = () => reject(request.error);
 		});
-		await notify();
+		notify();
 	};
 
 	const clear = async () => {
@@ -82,7 +134,7 @@ export const createHistoryStore = () => {
 			request.onsuccess = () => resolve();
 			request.onerror = () => reject(request.error);
 		});
-		await notify();
+		notify();
 	};
 
 	const subscribe = (listener: Listener) => {
@@ -95,7 +147,10 @@ export const createHistoryStore = () => {
 	return {
 		add,
 		clear,
-		list,
+		count,
+		listPage,
 		subscribe,
 	};
 };
+
+export type HistoryStore = ReturnType<typeof createHistoryStore>;

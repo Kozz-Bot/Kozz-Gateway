@@ -66,6 +66,11 @@ export const ErrorText = styled.div`
 
 export const Pre = styled.pre`
 	overflow: auto;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 	margin: 0;
 	background: ${props => props.theme.colors.codeBackground};
 	border: 1px solid ${props => props.theme.colors.border};

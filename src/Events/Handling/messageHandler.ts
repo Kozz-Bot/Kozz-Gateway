@@ -21,6 +21,7 @@ import {
 	getBoundary,
 	getBoundaryByName,
 } from 'src/Boundaries';
+import { getPanelSessionSocket } from 'src/PanelSessions';
 import { useProxy } from 'src/Proxies';
 
 const assertBoundary = (id: string) => {
@@ -124,6 +125,16 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 };
 
 const forwardsToBoundary = (eventName: string, payload: any) => {
+	const panelSocket = getPanelSessionSocket(payload.boundaryId);
+	if (panelSocket) {
+		panelSocket.emit('panel_module_response', {
+			event: eventName,
+			payload,
+			receivedAt: Date.now(),
+		});
+		return;
+	}
+
 	const boundaryData =
 		getBoundary(payload.boundaryId || payload.boundaryName) ||
 		getBoundaryByName(payload.boundaryId || payload.boundaryName);

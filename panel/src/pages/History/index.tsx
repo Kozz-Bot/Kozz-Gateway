@@ -7,7 +7,10 @@ export const HistoryPage = ({ model }: { model: AppModel }) => {
 
 	return (
 		<S.Stack>
-			<view.HistoryList entries={view.entries} onFlush={view.onFlush} />
+			<view.HistoryList
+				historyStore={view.historyStore}
+				onFlush={view.onFlush}
+			/>
 		</S.Stack>
 	);
 };

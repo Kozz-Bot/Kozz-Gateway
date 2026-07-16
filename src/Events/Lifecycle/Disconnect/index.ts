@@ -3,6 +3,8 @@ import { Socket } from 'socket.io';
 import { isBoundary, removeBoundary } from 'src/Boundaries';
 import { revoke_proxy } from 'src/Events/Handling/proxyHanlder';
 import { isHandler, removeHandler } from 'src/Handlers';
+import { removePanelSessions } from 'src/PanelSessions';
+import { removePanelProxySubscriptions } from 'src/PanelProxySubscriptions';
 
 export const addDisconnectHandlers = (
 	socket: Socket,
@@ -11,6 +13,8 @@ export const addDisconnectHandlers = (
 	const proxyRevoker = revoke_proxy(socket);
 
 	socket.on('disconnecting', () => {
+		removePanelSessions(socket);
+		removePanelProxySubscriptions(socket);
 		if (isBoundary(introduction)) {
 			removeBoundary(socket.id);
 		}

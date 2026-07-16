@@ -1,15 +1,15 @@
-import { HistoryEntry } from '@/lib/historyStore';
+import { HistoryStore } from '@/lib/historyStore';
 import { useHistoryListBehavior } from './behavior';
 import * as S from './styles';
 
 export const HistoryList = ({
-	entries,
+	historyStore,
 	onFlush,
 }: {
-	entries: HistoryEntry[];
+	historyStore: HistoryStore;
 	onFlush: () => void;
 }) => {
-	const view = useHistoryListBehavior({ entries, onFlush });
+	const view = useHistoryListBehavior({ historyStore, onFlush });
 
 	return (
 		<>
@@ -24,7 +24,7 @@ export const HistoryList = ({
 				</S.Button>
 			</S.Toolbar>
 			<S.List>
-				{view.filteredEntries.map(entry => (
+				{view.entries.map(entry => (
 					<S.Item key={entry.id}>
 						<S.Meta>
 							<span>{entry.type}</span>
@@ -35,6 +35,15 @@ export const HistoryList = ({
 					</S.Item>
 				))}
 			</S.List>
+			<S.Footer>
+				<S.Button
+					disabled={!view.hasMore || view.isLoading}
+					onClick={view.loadMore}
+					type="button"
+				>
+					{view.isLoading ? 'Loading' : view.hasMore ? 'Load more' : 'No more entries'}
+				</S.Button>
+			</S.Footer>
 		</>
 	);
 };

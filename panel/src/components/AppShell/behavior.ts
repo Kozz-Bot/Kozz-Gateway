@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, Database, History, KeyRound, Radio, Send, Settings } from 'lucide-react';
+import { Activity, Boxes, Database, GitBranch, History, KeyRound, Network, Radio, Send, Settings } from 'lucide-react';
 import { AppModel } from '@/App/behavior';
 import { OverviewPage } from '@/pages/Overview';
 import { EntitiesPage } from '@/pages/Entities';
@@ -8,6 +8,9 @@ import { DispatchPage } from '@/pages/Dispatch';
 import { HistoryPage } from '@/pages/History';
 import { AuthPage } from '@/pages/Auth';
 import { SettingsPage } from '@/pages/Settings';
+import { BoundariesPage } from '@/pages/Boundaries';
+import { ModulesPage } from '@/pages/Modules';
+import { ProxiesPage } from '@/pages/Proxies';
 
 const publicBasePath = '/kozz/web';
 const localBasePath = '/web';
@@ -15,6 +18,9 @@ const localBasePath = '/web';
 const routes = [
 	{ path: publicBasePath, label: 'Overview', icon: Activity, page: OverviewPage },
 	{ path: `${publicBasePath}/entities`, label: 'Entities', icon: Radio, page: EntitiesPage },
+	{ path: `${publicBasePath}/boundaries`, label: 'Boundaries', icon: Network, page: BoundariesPage },
+	{ path: `${publicBasePath}/modules`, label: 'Modules', icon: Boxes, page: ModulesPage },
+	{ path: `${publicBasePath}/proxies`, label: 'Proxies', icon: GitBranch, page: ProxiesPage },
 	{ path: `${publicBasePath}/resources`, label: 'Resources', icon: Database, page: ResourcesPage },
 	{ path: `${publicBasePath}/dispatch`, label: 'Dispatch', icon: Send, page: DispatchPage },
 	{ path: `${publicBasePath}/history`, label: 'History', icon: History, page: HistoryPage },

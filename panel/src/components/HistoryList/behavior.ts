@@ -1,32 +1,94 @@
-import { useMemo, useState } from 'react';
-import { HistoryEntry } from '@/lib/historyStore';
+import { useCallback, useEffect, useState } from 'react';
+import { HistoryEntry, HistoryStore } from '@/lib/historyStore';
 import { formatJson } from '@/lib/json';
 
+const PAGE_SIZE = 50;
+
 export const useHistoryListBehavior = ({
-	entries,
+	historyStore,
 	onFlush,
 }: {
-	entries: HistoryEntry[];
+	historyStore: HistoryStore;
 	onFlush: () => void;
 }) => {
 	const [query, setQuery] = useState('');
-	const filteredEntries = useMemo(
-		() =>
-			entries.filter(entry =>
-				`${entry.type} ${entry.title} ${formatJson(entry.payload)}`
-					.toLowerCase()
-					.includes(query.toLowerCase())
-			),
-		[entries, query]
-	);
+	const [entries, setEntries] = useState<HistoryEntry[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [hasMore, setHasMore] = useState(true);
+
+	const resetEntries = useCallback(async () => {
+		setIsLoading(true);
+		const nextEntries = await historyStore.listPage({
+			limit: PAGE_SIZE,
+			offset: 0,
+			query,
+		});
+		setEntries(nextEntries);
+		setHasMore(nextEntries.length === PAGE_SIZE);
+		setIsLoading(false);
+	}, [historyStore, query]);
+
+	const loadMore = useCallback(async () => {
+		if (isLoading) {
+			return;
+		}
+
+		setIsLoading(true);
+		const nextEntries = await historyStore.listPage({
+			limit: PAGE_SIZE,
+			offset: entries.length,
+			query,
+		});
+		setEntries(current => [...current, ...nextEntries]);
+		setHasMore(nextEntries.length === PAGE_SIZE);
+		setIsLoading(false);
+	}, [entries.length, historyStore, isLoading, query]);
+
+	useEffect(() => {
+		let active = true;
+		const loadInitialPage = async () => {
+			setIsLoading(true);
+			const nextEntries = await historyStore.listPage({
+				limit: PAGE_SIZE,
+				offset: 0,
+				query,
+			});
+			if (!active) {
+				return;
+			}
+			setEntries(nextEntries);
+			setHasMore(nextEntries.length === PAGE_SIZE);
+			setIsLoading(false);
+		};
+		loadInitialPage();
+		return () => {
+			active = false;
+		};
+	}, [historyStore, query]);
+
+	useEffect(() => {
+		const unsubscribe = historyStore.subscribe(() => {
+			resetEntries();
+		});
+		return unsubscribe;
+	}, [historyStore, resetEntries]);
+
+	const handleFlush = async () => {
+		await onFlush();
+		setEntries([]);
+		setHasMore(false);
+	};
 
 	return {
-		filteredEntries: filteredEntries.map(entry => ({
+		entries: entries.map(entry => ({
 			...entry,
 			createdLabel: new Date(entry.createdAt).toLocaleString(),
 			payloadText: formatJson(entry.payload),
 		})),
-		onFlush,
+		hasMore,
+		isLoading,
+		loadMore,
+		onFlush: handleFlush,
 		query,
 		setQuery,
 	};

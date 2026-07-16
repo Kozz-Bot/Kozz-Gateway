@@ -170,6 +170,11 @@ export const logHandler = (boundary: HandlerInstance) => {
 
 export const removeHandler = (handlerName: string) => {
 	const handler = handlers[handlerName];
+	if (!handler) {
+		console.warn(`Tried to disconnect unknown handler with id ${handlerName}`);
+		return;
+	}
+
 	console.log(`Disconnecting handler with id ${handler.name}`);
 	delete handlers[handlerName];
 };

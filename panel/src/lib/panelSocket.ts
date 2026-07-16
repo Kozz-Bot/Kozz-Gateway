@@ -11,6 +11,7 @@ type SocketStatus = {
 };
 
 type StatusListener = (status: SocketStatus) => void;
+type EventListener = (payload: unknown) => void;
 type ResourceTarget = {
 	id: string;
 	type: 'Gateway' | 'Boundary' | 'Handler';
@@ -33,6 +34,7 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		connecting: false,
 	};
 	const statusListeners = new Set<StatusListener>();
+	const eventListeners = new Map<string, Set<EventListener>>();
 
 	const emitStatus = (nextStatus: SocketStatus) => {
 		status = nextStatus;
@@ -92,6 +94,7 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		});
 
 		socket.onAny((event, payload) => {
+			eventListeners.get(event)?.forEach(listener => listener(payload));
 			addHistory({
 				type: 'socket',
 				title: event,
@@ -113,6 +116,15 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		listener(status);
 		return () => {
 			statusListeners.delete(listener);
+		};
+	};
+
+	const subscribeEvent = (event: string, listener: EventListener) => {
+		const listeners = eventListeners.get(event) || new Set<EventListener>();
+		listeners.add(listener);
+		eventListeners.set(event, listeners);
+		return () => {
+			listeners.delete(listener);
 		};
 	};
 
@@ -168,6 +180,54 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		});
 	};
 
+	const sendTextMessage = ({
+		body,
+		boundaryId,
+		chatId,
+	}: {
+		body: string;
+		boundaryId: string;
+		chatId: string;
+	}) => {
+		dispatch('send_message', {
+			body,
+			boundaryId,
+			chatId,
+			contact: {
+				hostAdded: true,
+				id: PANEL_NAME,
+				isBlocked: false,
+				isGroup: false,
+				isHostAccount: true,
+				privateName: PANEL_NAME,
+				publicName: PANEL_NAME,
+			},
+			platform: 'other',
+			timestamp: Date.now(),
+		});
+	};
+
+	const sendModuleCommand = ({
+		commandText,
+		moduleName,
+	}: {
+		commandText: string;
+		moduleName: string;
+	}) => {
+		dispatch('panel_module_command', {
+			commandText,
+			moduleName,
+		});
+	};
+
+	const subscribeProxy = (source: string) => {
+		dispatch('panel_proxy_subscribe', { source });
+	};
+
+	const unsubscribeProxy = (source?: string) => {
+		dispatch('panel_proxy_unsubscribe', { source });
+	};
+
 	return {
 		askGateway,
 		askResource,
@@ -175,6 +235,11 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		disconnect,
 		dispatch,
 		getStatus,
+		sendModuleCommand,
+		sendTextMessage,
+		subscribeProxy,
+		subscribeEvent,
 		subscribeStatus,
+		unsubscribeProxy,
 	};
 };

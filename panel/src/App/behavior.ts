@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPanelSocket, PanelSocket } from '@/lib/panelSocket';
-import { createHistoryStore, HistoryEntry } from '@/lib/historyStore';
+import { createHistoryStore } from '@/lib/historyStore';
 import { darkTheme, lightTheme } from '@/styles/theme';
 
 export type ThemeMode = 'light' | 'dark';
@@ -23,18 +23,18 @@ export const useAppBehavior = () => {
 	const [themeMode, setThemeMode] = useState<ThemeMode>(
 		() => (localStorage.getItem(THEME_KEY) as ThemeMode) || 'light'
 	);
-	const [history, setHistory] = useState<HistoryEntry[]>([]);
+	const [historyCount, setHistoryCount] = useState(0);
 	const historyStore = useMemo(() => createHistoryStore(), []);
 	const socket = useMemo<PanelSocket>(() => createPanelSocket(historyStore), [
 		historyStore,
 	]);
 
 	useEffect(() => {
-		historyStore.list().then(setHistory);
-	}, [historyStore]);
-
-	useEffect(() => {
-		const unsubscribe = historyStore.subscribe(setHistory);
+		const syncHistoryCount = () => {
+			historyStore.count().then(setHistoryCount);
+		};
+		syncHistoryCount();
+		const unsubscribe = historyStore.subscribe(syncHistoryCount);
 		return unsubscribe;
 	}, [historyStore]);
 
@@ -74,8 +74,9 @@ export const useAppBehavior = () => {
 			setSignature,
 			clearSignature,
 		},
-		history,
 		flushHistory,
+		historyCount,
+		historyStore,
 		socket,
 		theme: themeMode === 'light' ? lightTheme : darkTheme,
 		themeMode,

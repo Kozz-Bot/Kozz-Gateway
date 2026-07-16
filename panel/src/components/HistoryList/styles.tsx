@@ -22,6 +22,11 @@ export const Button = styled.button`
 	border-radius: 6px;
 	padding: 9px 10px;
 	cursor: pointer;
+
+	:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
 `;
 
 export const List = styled.div`
@@ -52,9 +57,20 @@ export const Title = styled.div`
 
 export const Pre = styled.pre`
 	overflow: auto;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 	margin: 0;
 	background: ${props => props.theme.colors.codeBackground};
 	border-radius: 6px;
 	padding: 10px;
 	font-size: 12px;
+`;
+
+export const Footer = styled.div`
+	display: flex;
+	justify-content: center;
+	margin-top: 14px;
 `;
