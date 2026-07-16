@@ -37,17 +37,38 @@ const boundaryResources = [
 
 const handlerResources = ['help'];
 
-const getEntityLabel = (entity: Record<string, unknown>) =>
-	String(entity.name || entity.id || 'unknown');
+const getNestedEntity = (entity: Record<string, unknown>, key: string) =>
+	typeof entity[key] === 'object' && entity[key] !== null
+		? (entity[key] as Record<string, unknown>)
+		: {};
 
-const getEntityValue = (entity: Record<string, unknown>) =>
-	String(entity.id || entity.name || '');
+const toOptions = (
+	entities: Array<Record<string, unknown>> = [],
+	type: Exclude<EntityType, 'Gateway'>
+) => {
+	const options = entities
+		.map(entity => {
+			const nested = getNestedEntity(
+				entity,
+				type === 'Boundary' ? 'boundary' : 'handler'
+			);
+			const name = String(entity.name || nested.name || '');
+			const id = String(entity.id || nested.id || '');
+			const value = name || id;
+			const label = name ? (id ? `${name} (${id})` : name) : id;
 
-const toOptions = (entities: Array<Record<string, unknown>> = []) =>
-	entities.map(entity => ({
-		label: getEntityLabel(entity),
-		value: getEntityValue(entity),
-	}));
+			return {
+				label,
+				value,
+			};
+		})
+		.filter(option => option.value);
+
+	return options.filter(
+		(option, index) =>
+			options.findIndex(candidate => candidate.value === option.value) === index
+	);
+};
 
 export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 	const [snapshot, setSnapshot] = useState<GatewaySnapshot>({});
@@ -59,17 +80,27 @@ export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 	const [responseText, setResponseText] = useState('{}');
 
 	useEffect(() => {
-		model.socket.askGateway('gateway_snapshot').then(response => {
-			setSnapshot((response.response as GatewaySnapshot) || {});
+		Promise.all([
+			model.socket.askGateway('all_boundaries'),
+			model.socket.askGateway('all_modules'),
+			model.socket.askGateway('gateway_resources'),
+		]).then(([boundariesResponse, handlersResponse, resourcesResponse]) => {
+			setSnapshot({
+				boundaries:
+					(boundariesResponse.response as Array<Record<string, unknown>>) || [],
+				handlers:
+					(handlersResponse.response as Array<Record<string, unknown>>) || [],
+				resources: (resourcesResponse.response as string[]) || [],
+			});
 		});
 	}, [model.socket]);
 
 	const entityOptions = useMemo(() => {
 		if (entityType === 'Boundary') {
-			return toOptions(snapshot.boundaries);
+			return toOptions(snapshot.boundaries, 'Boundary');
 		}
 		if (entityType === 'Handler') {
-			return toOptions(snapshot.handlers);
+			return toOptions(snapshot.handlers, 'Handler');
 		}
 		return [{ label: 'Gateway', value: 'Gateway' }];
 	}, [entityType, snapshot.boundaries, snapshot.handlers]);
@@ -80,7 +111,7 @@ export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 			return;
 		}
 
-		if (!entityId && entityOptions[0]) {
+		if (!entityOptions.some(option => option.value === entityId) && entityOptions[0]) {
 			setEntityId(entityOptions[0].value);
 		}
 	}, [entityId, entityOptions, entityType]);

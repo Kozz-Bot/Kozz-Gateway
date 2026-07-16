@@ -30,6 +30,9 @@ export const ResourcesPage = ({ model }: { model: AppModel }) => {
 							onChange={event => view.setEntityId(event.target.value)}
 							value={view.entityId}
 						>
+							{view.entityOptions.length === 0 ? (
+								<option value="">No entity connected</option>
+							) : null}
 							{view.entityOptions.map(option => (
 								<option key={option.value} value={option.value}>
 									{option.label}
