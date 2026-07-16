@@ -1,3 +1,4 @@
+import CodeMirror from '@uiw/react-codemirror';
 import { useCodeFieldBehavior } from './behavior';
 import * as S from './styles';
 
@@ -11,13 +12,15 @@ export const CodeField = ({
 	const view = useCodeFieldBehavior({ value, onChange });
 
 	return (
-		<S.Editor
-			basicSetup
-			extensions={view.extensions}
-			height="260px"
-			onChange={view.onChange}
-			theme={view.editorTheme}
-			value={view.value}
-		/>
+		<S.Shell>
+			<CodeMirror
+				basicSetup
+				extensions={view.extensions}
+				height="260px"
+				onChange={view.onChange}
+				theme={view.codeMirrorTheme}
+				value={view.value}
+			/>
+		</S.Shell>
 	);
 };

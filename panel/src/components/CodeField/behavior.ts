@@ -14,7 +14,7 @@ export const useCodeFieldBehavior = ({
 	return {
 		extensions: [json()],
 		onChange,
-		editorTheme: (theme.name === 'dark' ? oneDark : 'light') as never,
+		codeMirrorTheme: (theme.name === 'dark' ? oneDark : 'light') as never,
 		value,
 	};
 };
