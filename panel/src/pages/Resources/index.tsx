@@ -75,6 +75,10 @@ export const ResourcesPage = ({ model }: { model: AppModel }) => {
 						<span>Parameters</span>
 						<view.CodeField value={view.paramsText} onChange={view.setParamsText} />
 					</S.Field>
+					<S.Field>
+						<span>Request Payload</span>
+						<S.Pre>{view.requestPayloadText}</S.Pre>
+					</S.Field>
 				</S.Panel>
 			</S.Grid>
 

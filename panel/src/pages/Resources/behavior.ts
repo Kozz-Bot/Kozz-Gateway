@@ -37,6 +37,29 @@ const boundaryResources = [
 
 const handlerResources = ['help'];
 
+const defaultResourceData: Record<string, Record<string, unknown>> = {
+	contact_profile_pic: { id: '' },
+	group_chat_info: { id: '' },
+	group_admin_list: { id: '' },
+	unread_count: { id: '' },
+	chat_details: { id: '' },
+	contact_info: { id: '' },
+	lid_from_jid: { id: '' },
+	jid_from_lid: { id: '' },
+	recent_chat_messages: {
+		chatId: '',
+		limit: 20,
+		excludeMessageId: '',
+	},
+	message_count: {
+		chatId: '',
+		startTimestamp: 0,
+	},
+};
+
+const getDefaultResourceData = (resource: string) =>
+	defaultResourceData[resource] || {};
+
 const getNestedEntity = (entity: Record<string, unknown>, key: string) =>
 	typeof entity[key] === 'object' && entity[key] !== null
 		? (entity[key] as Record<string, unknown>)
@@ -142,25 +165,42 @@ export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 			: 'Parameters must be a JSON object'
 		: parsedParams.error;
 	const canSubmit = Boolean(entityId && selectedResourceName && !paramsError);
+	const requestPayloadText = formatJson({
+		responder: {
+			id: entityId,
+			type: entityType,
+		},
+		requester: {
+			id: 'kozz-gw-panel',
+			type: 'Handler',
+		},
+		request: {
+			resource: selectedResourceName || '<resource>',
+			data: parsedParams.ok ? parsedParams.value : '<invalid-json>',
+		},
+		timestamp: '<generated-on-submit>',
+	});
 
 	const setType = (nextType: EntityType) => {
-		setEntityType(nextType);
-		setEntityId(nextType === 'Gateway' ? 'Gateway' : '');
-		setResourceName(
+		const nextResource =
 			nextType === 'Boundary'
 				? boundaryResources[0]
 				: nextType === 'Handler'
 				? handlerResources[0]
-				: (snapshot.resources || ['gateway_status'])[0]
-		);
+				: (snapshot.resources || ['gateway_status'])[0];
+
+		setEntityType(nextType);
+		setEntityId(nextType === 'Gateway' ? 'Gateway' : '');
+		setResourceName(nextResource);
 		setCustomResourceName('');
-		setParamsText('{}');
+		setParamsText(formatJson(getDefaultResourceData(nextResource)));
 	};
 
 	const setResource = (nextResource: string) => {
 		setResourceName(nextResource);
 		if (nextResource !== otherResource) {
 			setCustomResourceName('');
+			setParamsText(formatJson(getDefaultResourceData(nextResource)));
 		}
 	};
 
@@ -194,6 +234,7 @@ export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 		paramsText,
 		resourceName,
 		resourceOptions,
+		requestPayloadText,
 		responseText,
 		selectedResourceName,
 		setCustomResourceName,
