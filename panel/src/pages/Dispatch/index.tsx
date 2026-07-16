@@ -9,9 +9,14 @@ export const DispatchPage = ({ model }: { model: AppModel }) => {
 		<S.Stack>
 			<S.Presets>
 				{view.presets.map(preset => (
-					<S.PresetButton key={preset.label} onClick={preset.onClick} type="button">
+					<S.TemplateButton
+						active={preset.active}
+						key={preset.label}
+						onClick={preset.onClick}
+						type="button"
+					>
 						{preset.label}
-					</S.PresetButton>
+					</S.TemplateButton>
 				))}
 			</S.Presets>
 			<view.DispatchForm

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, Database, FileJson, History, KeyRound, Radio, Send, Settings } from 'lucide-react';
+import { Activity, Database, History, KeyRound, Radio, Send, Settings } from 'lucide-react';
 import { AppModel } from '@/App/behavior';
 import { OverviewPage } from '@/pages/Overview';
 import { EntitiesPage } from '@/pages/Entities';
@@ -20,7 +20,6 @@ const routes = [
 	{ path: `${publicBasePath}/history`, label: 'History', icon: History, page: HistoryPage },
 	{ path: `${publicBasePath}/auth`, label: 'Auth', icon: KeyRound, page: AuthPage },
 	{ path: `${publicBasePath}/settings`, label: 'Settings', icon: Settings, page: SettingsPage },
-	{ path: `${publicBasePath}/raw`, label: 'Raw JSON', icon: FileJson, page: DispatchPage },
 ];
 
 const normalizePathname = (pathname: string) => {

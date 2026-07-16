@@ -6,6 +6,7 @@ import { formatJson } from '@/lib/json';
 
 export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 	const [resources, setResources] = useState<string[]>([]);
+	const [selectedResource, setSelectedResource] = useState('gateway_status');
 	const [responseText, setResponseText] = useState('{}');
 
 	useEffect(() => {
@@ -27,12 +28,17 @@ export const useResourcesBehavior = ({ model }: { model: AppModel }) => {
 			{ name: 'resource', label: 'Resource', placeholder: 'gateway_status' },
 		],
 		initialJson: {
-			resource: 'gateway_status',
+			resource: selectedResource,
 			data: {},
 		},
-		resources,
+		resources: resources.map(resource => ({
+			active: resource === selectedResource,
+			label: resource,
+			onClick: () => setSelectedResource(resource),
+		})),
 		responseText,
 		schema: gatewayResourceSchema,
+		selectedResource,
 		submit,
 	};
 };

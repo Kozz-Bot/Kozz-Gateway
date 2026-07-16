@@ -20,9 +20,15 @@ export const useDispatchFormBehavior = ({
 	schema: z.ZodType;
 	onSubmit: (value: unknown) => void;
 }) => {
-	const [form, setForm] = useState<Record<string, string>>({});
-	const [jsonText, setJsonText] = useState(formatJson(initialJson));
 	const baseJson = typeof initialJson === 'object' && initialJson ? initialJson : {};
+	const [form, setForm] = useState<Record<string, string>>(() =>
+		fields.reduce<Record<string, string>>((acc, field) => {
+			const value = (baseJson as Record<string, unknown>)[field.name];
+			acc[field.name] = typeof value === 'string' ? value : '';
+			return acc;
+		}, {})
+	);
+	const [jsonText, setJsonText] = useState(formatJson(initialJson));
 
 	const parsed = useMemo(() => parseJson(jsonText), [jsonText]);
 	const validation = useMemo(

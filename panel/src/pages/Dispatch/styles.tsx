@@ -11,11 +11,11 @@ export const Presets = styled.div`
 	gap: 8px;
 `;
 
-export const PresetButton = styled.button`
+export const TemplateButton = styled.button<{ active: boolean }>`
 	border: 1px solid ${props => props.theme.colors.border};
-	background: ${props => props.theme.colors.surface};
+	background: ${props =>
+		props.active ? props.theme.colors.surfaceMuted : props.theme.colors.surface};
 	color: ${props => props.theme.colors.text};
-	border-radius: 6px;
 	padding: 8px 10px;
 	cursor: pointer;
 `;
