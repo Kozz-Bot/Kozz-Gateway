@@ -4,6 +4,7 @@ import { getBoundary, getBoundaryByName } from '../../Boundaries';
 import { getHandler, getHandlerByName } from '../../Handlers';
 import { getAllBoundaries, getAllHandlers } from './Getters';
 import { getAllProxies } from 'src/Proxies';
+import { getGatewayAdminSnapshot } from 'src/API/AdminSnapshot';
 
 export const ask_resource = (socket: Socket) => (payload: AskResourcePayload) => {
 	if (payload.responder.type === 'Handler') {
@@ -73,6 +74,31 @@ const askGateway = (payload: AskResourcePayload) => {
 		}
 		if (payload.request.resource === 'all_proxies') {
 			return getAllProxies();
+		}
+		if (payload.request.resource === 'gateway_status') {
+			return getGatewayAdminSnapshot().status;
+		}
+		if (payload.request.resource === 'gateway_entities') {
+			const { boundaries, handlers } = getGatewayAdminSnapshot();
+			return {
+				boundaries,
+				handlers,
+			};
+		}
+		if (payload.request.resource === 'gateway_boundaries') {
+			return getAllBoundaries();
+		}
+		if (payload.request.resource === 'gateway_handlers') {
+			return getAllHandlers();
+		}
+		if (payload.request.resource === 'gateway_proxies') {
+			return getAllProxies();
+		}
+		if (payload.request.resource === 'gateway_resources') {
+			return getGatewayAdminSnapshot().resources;
+		}
+		if (payload.request.resource === 'gateway_snapshot') {
+			return getGatewayAdminSnapshot();
 		}
 	})();
 

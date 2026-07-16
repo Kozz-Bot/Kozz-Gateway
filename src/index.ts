@@ -8,6 +8,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { checkApiKey } from './API/Middlewares';
 import cors from 'cors';
+import path from 'path';
 
 type InitServerOptions = {
 	bufferSizeInMB: number;
@@ -44,6 +45,9 @@ generateRandomAPIKey();
 
 const WebsiteServer = express();
 WebsiteServer.use('/web', express.static('./public', {}));
+WebsiteServer.get('/web/*', (_req, res) => {
+	res.sendFile(path.resolve('./public/index.html'));
+});
 
 const runBoundarySignatureScript = () => {
 	exec(
