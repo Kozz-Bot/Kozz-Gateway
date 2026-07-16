@@ -11,6 +11,10 @@ type SocketStatus = {
 };
 
 type StatusListener = (status: SocketStatus) => void;
+type ResourceTarget = {
+	id: string;
+	type: 'Gateway' | 'Boundary' | 'Handler';
+};
 
 const PANEL_NAME = 'kozz-gw-panel';
 const socketPath = window.location.pathname.startsWith('/kozz/')
@@ -113,6 +117,14 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 	};
 
 	const askGateway = async (resource: string, data: Record<string, unknown> = {}) => {
+		return askResource({ id: 'Gateway', type: 'Gateway' }, resource, data);
+	};
+
+	const askResource = async (
+		target: ResourceTarget,
+		resource: string,
+		data: Record<string, unknown> = {}
+	) => {
 		if (!socket) {
 			throw new Error('Socket is not connected');
 		}
@@ -123,11 +135,22 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 				type: 'Handler',
 			},
 		});
-		const response = await ask.gateway(resource, data);
+		const response = await (async () => {
+			if (target.type === 'Boundary') {
+				return ask.boundary(target.id, resource, data);
+			}
+			if (target.type === 'Handler') {
+				return ask.handler(target.id, resource, data);
+			}
+			return ask.gateway(resource, data);
+		})();
 		addHistory({
 			type: 'resource',
-			title: resource,
-			payload: response,
+			title: `${target.type}/${target.id}/${resource}`,
+			payload: {
+				request: { target, resource, data },
+				response,
+			},
 		});
 		return response;
 	};
@@ -147,6 +170,7 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 
 	return {
 		askGateway,
+		askResource,
 		connect,
 		disconnect,
 		dispatch,
