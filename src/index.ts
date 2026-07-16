@@ -44,7 +44,10 @@ const generateRandomAPIKey = () => {
 generateRandomAPIKey();
 
 const WebsiteServer = express();
-WebsiteServer.use('/web', express.static('./public', {}));
+WebsiteServer.use('/web', express.static('./public', { redirect: false }));
+WebsiteServer.get('/web', (_req, res) => {
+	res.sendFile(path.resolve('./public/index.html'));
+});
 WebsiteServer.get('/web/*', (_req, res) => {
 	res.sendFile(path.resolve('./public/index.html'));
 });

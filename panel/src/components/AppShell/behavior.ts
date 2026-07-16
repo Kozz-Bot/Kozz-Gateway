@@ -9,20 +9,37 @@ import { HistoryPage } from '@/pages/History';
 import { AuthPage } from '@/pages/Auth';
 import { SettingsPage } from '@/pages/Settings';
 
+const publicBasePath = '/kozz/web';
+const localBasePath = '/web';
+
 const routes = [
-	{ path: '/web', label: 'Overview', icon: Activity, page: OverviewPage },
-	{ path: '/web/entities', label: 'Entities', icon: Radio, page: EntitiesPage },
-	{ path: '/web/resources', label: 'Resources', icon: Database, page: ResourcesPage },
-	{ path: '/web/dispatch', label: 'Dispatch', icon: Send, page: DispatchPage },
-	{ path: '/web/history', label: 'History', icon: History, page: HistoryPage },
-	{ path: '/web/auth', label: 'Auth', icon: KeyRound, page: AuthPage },
-	{ path: '/web/settings', label: 'Settings', icon: Settings, page: SettingsPage },
-	{ path: '/web/raw', label: 'Raw JSON', icon: FileJson, page: DispatchPage },
+	{ path: publicBasePath, label: 'Overview', icon: Activity, page: OverviewPage },
+	{ path: `${publicBasePath}/entities`, label: 'Entities', icon: Radio, page: EntitiesPage },
+	{ path: `${publicBasePath}/resources`, label: 'Resources', icon: Database, page: ResourcesPage },
+	{ path: `${publicBasePath}/dispatch`, label: 'Dispatch', icon: Send, page: DispatchPage },
+	{ path: `${publicBasePath}/history`, label: 'History', icon: History, page: HistoryPage },
+	{ path: `${publicBasePath}/auth`, label: 'Auth', icon: KeyRound, page: AuthPage },
+	{ path: `${publicBasePath}/settings`, label: 'Settings', icon: Settings, page: SettingsPage },
+	{ path: `${publicBasePath}/raw`, label: 'Raw JSON', icon: FileJson, page: DispatchPage },
 ];
+
+const normalizePathname = (pathname: string) => {
+	const withoutTrailingSlash = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+
+	if (withoutTrailingSlash === localBasePath) {
+		return publicBasePath;
+	}
+
+	if (withoutTrailingSlash.startsWith(`${localBasePath}/`)) {
+		return `${publicBasePath}${withoutTrailingSlash.slice(localBasePath.length)}`;
+	}
+
+	return withoutTrailingSlash || publicBasePath;
+};
 
 export const useAppShellBehavior = (model: AppModel) => {
 	const [pathname, setPathname] = useState(window.location.pathname);
-	const normalizedPathname = pathname === '/web/' ? '/web' : pathname;
+	const normalizedPathname = normalizePathname(pathname);
 	const activeRoute = useMemo(
 		() => routes.find(route => route.path === normalizedPathname) || routes[0],
 		[normalizedPathname]

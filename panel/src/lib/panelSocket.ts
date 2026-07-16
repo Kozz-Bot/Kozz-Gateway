@@ -13,6 +13,12 @@ type SocketStatus = {
 type StatusListener = (status: SocketStatus) => void;
 
 const PANEL_NAME = 'kozz-gw-panel';
+const socketPath = window.location.pathname.startsWith('/kozz/')
+	? '/kozz/socket.io/'
+	: '/socket.io/';
+const socketOrigin = window.location.pathname.startsWith('/kozz/')
+	? window.location.origin
+	: window.location.origin.replace(/:3878$/, ':4521');
 
 export type PanelSocket = ReturnType<typeof createPanelSocket>;
 
@@ -39,8 +45,8 @@ export const createPanelSocket = (historyStore: HistoryStore) => {
 		}
 
 		emitStatus({ connected: false, connecting: true });
-		socket = io(window.location.origin.replace(/:3878$/, ':4521'), {
-			path: '/socket.io/',
+		socket = io(socketOrigin, {
+			path: socketPath,
 		});
 
 		socket.on('connect', () => {
