@@ -3,6 +3,7 @@ import { Socket } from 'socket.io';
 import boundaries from 'src/Boundaries';
 import handlers from 'src/Handlers';
 import { getAllProxies } from 'src/Proxies';
+import { normalizeNamespace } from 'src/Entities';
 
 type GetBoundaryReturn<GetSocket = false> = {
 	id: string;
@@ -16,9 +17,16 @@ type GetBoundaryReturn<GetSocket = false> = {
 };
 
 export const getAllBoundaries = <GetSocket>(
-	getSocket?: GetSocket
+	getSocket?: GetSocket,
+	namespace?: string
 ): GetBoundaryReturn<GetSocket>[] => {
-	return Object.keys(boundaries).map(key => {
+	return Object.keys(boundaries)
+		.filter(
+			key =>
+				!namespace ||
+				normalizeNamespace(boundaries[key].namespace) === normalizeNamespace(namespace)
+		)
+		.map(key => {
 		const { name, platform, OS, listeners, socket } = boundaries[key];
 
 		return {
@@ -47,8 +55,17 @@ export type GetAllHandlersReturn<GetSocket = false> = {
 	};
 };
 
-export const getAllHandlers = <GetSocket>(getSocket?: GetSocket) => {
-	return Object.keys(handlers).map(key => {
+export const getAllHandlers = <GetSocket>(
+	getSocket?: GetSocket,
+	namespace?: string
+) => {
+	return Object.keys(handlers)
+		.filter(
+			key =>
+				!namespace ||
+				normalizeNamespace(handlers[key].namespace) === normalizeNamespace(namespace)
+		)
+		.map(key => {
 		const { id, methods, name, role, listeners, socket } = handlers[key];
 
 		return {
@@ -64,4 +81,4 @@ export const getAllHandlers = <GetSocket>(getSocket?: GetSocket) => {
 	}) as unknown as GetAllHandlersReturn<GetSocket>[];
 };
 
-export const getProxyMap = () => getAllProxies();
+export const getProxyMap = (namespace?: string) => getAllProxies(namespace);

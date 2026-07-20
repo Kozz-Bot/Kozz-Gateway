@@ -10,7 +10,8 @@
 		"web:dev": "vite --host 0.0.0.0 --config panel/vite.config.ts",
 		"web:build": "vite build --config panel/vite.config.ts",
 		"panel:sign": "node ./scripts/panel_signature.js",
-		"test": "jest",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"docs": "typedoc ./src/index.ts",
 		"build": "tsc",
 		"build:lib": "tsc ./scr/lib.ts"
@@ -19,12 +20,13 @@
 		"@types/express": "^4.17.21",
 		"@types/jest": "^29.5.14",
 		"concurrently": "^7.6.0",
-		"kozz-types": "^0.1.23",
+		"kozz-types": "^0.2.0",
 		"nodemon": "^3.1.9",
 		"parcel": "^2.13.3",
 		"process": "^0.11.10",
 		"typedoc": "^0.23.28",
-		"typescript": "^4.9.5"
+		"typescript": "^4.9.5",
+		"vitest": "^2.1.9"
 	},
 	"dependencies": {
 		"@codemirror/lang-json": "^6.0.2",
@@ -42,7 +44,7 @@
 		"cors": "^2.8.5",
 		"express": "^4.21.2",
 		"keytar": "^7.9.0",
-		"kozz-module-maker": "file:../kozz-module-maker",
+		"kozz-module-maker": "^0.4.0",
 		"link-module-alias": "^1.2.0",
 		"lucide-react": "^1.24.0",
 		"react": "^19.2.7",

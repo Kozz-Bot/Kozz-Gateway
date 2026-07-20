@@ -4,6 +4,11 @@ import boundaries, { isBoundary, addBoundary } from 'src/Boundaries';
 import handlers, { isHandler, addHandler } from 'src/Handlers';
 import { addDisconnectHandlers } from '../Disconnect';
 import { removeSignatureFromPayload, verifyPayload } from 'src/Util';
+import {
+	markBoundaryProxyOnline,
+	markSubscriberProxyOnline,
+} from 'src/Proxies';
+import { normalizeNamespace } from 'src/Entities';
 
 //[TODO]: Move Introduction ACK to kozz-types
 type Introduction_Ack =
@@ -23,6 +28,11 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 	}
 
 	if (isBoundary(introduction)) {
+		const namespace = normalizeNamespace(introduction.namespace);
+		const scopedIntroduction = {
+			...introduction,
+			namespace,
+		};
 		const payloadValid = verifyPayload(
 			removeSignatureFromPayload(introduction),
 			introduction.signature
@@ -34,13 +44,19 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 			);
 		}
 
-		addBoundary(socket, introduction);
+		addBoundary(socket, scopedIntroduction);
+		markBoundaryProxyOnline(introduction.name, namespace);
 
-		console.log(`Connecting boundary with name ${introduction.name}`);
+		console.log(`Connecting boundary with name ${introduction.name} in namespace ${namespace}`);
 		socket.emit('introduction_ack', {
 			success: true,
 		} as Introduction_Ack);
 	} else if (isHandler(introduction)) {
+		const namespace = normalizeNamespace(introduction.namespace);
+		const scopedIntroduction = {
+			...introduction,
+			namespace,
+		};
 		const payloadValid = verifyPayload(
 			removeSignatureFromPayload(introduction),
 			introduction.signature
@@ -52,10 +68,11 @@ export const introduction = (socket: Socket) => (introduction: Introduction) => 
 			);
 		}
 
-		addHandler(socket, introduction);
+		addHandler(socket, scopedIntroduction);
+		markSubscriberProxyOnline(introduction.name, namespace);
 
 		console.log(
-			`Connecting Handler with ID ${introduction.name} and methods ${introduction.methods}`
+			`Connecting Handler with ID ${introduction.name} in namespace ${namespace} and methods ${introduction.methods}`
 		);
 		socket.emit('introduction_ack', {
 			success: true,

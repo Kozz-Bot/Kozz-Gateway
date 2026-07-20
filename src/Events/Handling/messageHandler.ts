@@ -16,13 +16,10 @@ import {
 	getHandlerByName,
 } from 'src/Handlers';
 import { parse } from 'src/Parser';
-import {
-	getAllBoundaryInstances,
-	getBoundary,
-	getBoundaryByName,
-} from 'src/Boundaries';
+import { getBoundary, getBoundaryByName } from 'src/Boundaries';
 import { getPanelSessionSocket } from 'src/PanelSessions';
 import { useProxy } from 'src/Proxies';
+import { getEntityBySocketId, normalizeNamespace } from 'src/Entities';
 
 const assertBoundary = (id: string) => {
 	if (!getBoundary(id)) {
@@ -34,11 +31,13 @@ const populateMessagePayload = (
 	message: MessageReceived,
 	socket: Socket
 ): MessageReceivedByGateway => {
+	const boundary = getBoundary(socket.id)!;
 	const newMessage: MessageReceivedByGateway = {
 		...message,
 		timestamp: message.timestamp || new Date().getTime(),
 		boundaryId: socket.id,
-		boundaryName: getBoundary(socket.id)!.name,
+		boundaryName: boundary.name,
+		namespace: normalizeNamespace(boundary.namespace),
 		quotedMessage: message.quotedMessage
 			? populateMessagePayload(message.quotedMessage, socket)
 			: undefined,
@@ -91,7 +90,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			return;
 		}
 		const { module, method, immediateArg, namedArgs, query } = command.result;
-		const alias = getCommandAlias(module);
+		const alias = getCommandAlias(module, newMessage.namespace);
 		const target = alias?.alias.target;
 		const targetModule = alias ? getCommandAliasTargetModule(alias) : module;
 		const targetMethod = target?.method || method;
@@ -102,7 +101,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			? mergeNamedArgs(target.namedArgs, namedArgs)
 			: namedArgs;
 		const targetQuery = getQuery(targetMethod, targetImmediateArg);
-		const handler = getHandlerByName(targetModule);
+		const handler = getHandlerByName(targetModule, newMessage.namespace);
 
 		if (!handler) return;
 
@@ -115,6 +114,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			message: newMessage,
 			query: targetQuery,
 			boundaryName: getBoundary(socket.id)!.name,
+			namespace: newMessage.namespace,
 			taggedContacts: newMessage.taggedContacts,
 		};
 
@@ -124,7 +124,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 	}
 };
 
-const forwardsToBoundary = (eventName: string, payload: any) => {
+const forwardsToBoundary = (socket: Socket, eventName: string, payload: any) => {
 	const panelSocket = getPanelSessionSocket(payload.boundaryId);
 	if (panelSocket) {
 		panelSocket.emit('panel_module_response', {
@@ -135,11 +135,14 @@ const forwardsToBoundary = (eventName: string, payload: any) => {
 		return;
 	}
 
+	const author = getEntityBySocketId(socket.id);
+	const namespace = normalizeNamespace(author?.namespace);
 	const boundaryData =
 		getBoundary(payload.boundaryId || payload.boundaryName) ||
-		getBoundaryByName(payload.boundaryId || payload.boundaryName);
+		getBoundaryByName(payload.boundaryId || payload.boundaryName, namespace);
 	console.log(`Forwarding event ${eventName} to boundary ${boundaryData?.name}`);
 	if (!boundaryData) return;
+	if (normalizeNamespace(boundaryData.namespace) !== namespace) return;
 	boundaryData.socket.emit(eventName, payload);
 };
 
@@ -154,7 +157,7 @@ export const new_message = (socket: Socket) => (newMessagePayload: NewMessage) =
 		return console.warn('[new_message]: No author for the message was found');
 	}
 
-	forwardsToBoundary('new_message', {
+	forwardsToBoundary(socket, 'new_message', {
 		...newMessagePayload,
 		author: author.name,
 	});
@@ -168,15 +171,15 @@ export const new_message = (socket: Socket) => (newMessagePayload: NewMessage) =
 export const send_message =
 	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
 		if (sendMessagePayload.media) {
-			forwardsToBoundary('send_message_with_media', sendMessagePayload);
+			forwardsToBoundary(socket, 'send_message_with_media', sendMessagePayload);
 		} else {
-			forwardsToBoundary('send_message', sendMessagePayload);
+			forwardsToBoundary(socket, 'send_message', sendMessagePayload);
 		}
 	};
 
 export const delete_message =
 	(socket: Socket) => (deleteMessagePayload: DeleteMessagePayload) => {
-		forwardsToBoundary('delete_message', deleteMessagePayload);
+		forwardsToBoundary(socket, 'delete_message', deleteMessagePayload);
 	};
 
 /**
@@ -186,7 +189,7 @@ export const delete_message =
  */
 export const reply_with_text =
 	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		forwardsToBoundary('reply_with_text', sendMessagePayload);
+		forwardsToBoundary(socket, 'reply_with_text', sendMessagePayload);
 	};
 
 /**
@@ -196,7 +199,7 @@ export const reply_with_text =
  */
 export const reply_with_sticker =
 	(socket: Socket) => (sendMessagePayload: SendMessagePayload) => {
-		forwardsToBoundary('reply_with_sticker', sendMessagePayload);
+		forwardsToBoundary(socket, 'reply_with_sticker', sendMessagePayload);
 	};
 
 /**
@@ -206,15 +209,15 @@ export const reply_with_sticker =
  */
 export const reply_with_media =
 	(socket: Socket) => (sendMediaPayload: SendMediaPayload) => {
-		forwardsToBoundary('reply_with_media', sendMediaPayload);
+		forwardsToBoundary(socket, 'reply_with_media', sendMediaPayload);
 	};
 
 export const react_message =
 	(socket: Socket) => (reactPayload: ReactToMessagePayload) => {
-		forwardsToBoundary('react_message', reactPayload);
+		forwardsToBoundary(socket, 'react_message', reactPayload);
 	};
 
 export const edit_message =
 	(socket: Socket) => (editMessagePayload: EditMessagePayload) => {
-		forwardsToBoundary('edit_message', editMessagePayload);
+		forwardsToBoundary(socket, 'edit_message', editMessagePayload);
 	};

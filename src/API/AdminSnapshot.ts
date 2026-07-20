@@ -3,10 +3,10 @@ import { getAllProxies } from 'src/Proxies';
 
 const startedAt = Date.now();
 
-export const getGatewayAdminSnapshot = () => {
-	const boundaries = getAllBoundaries();
-	const handlers = getAllHandlers();
-	const proxies = getAllProxies();
+export const getGatewayAdminSnapshot = (namespace?: string) => {
+	const boundaries = getAllBoundaries(false, namespace);
+	const handlers = getAllHandlers(false, namespace);
+	const proxies = getAllProxies(namespace);
 
 	return {
 		status: {

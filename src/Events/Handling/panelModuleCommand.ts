@@ -3,10 +3,12 @@ import { Socket } from 'socket.io';
 import { getHandlerByName } from 'src/Handlers';
 import { createPanelSession } from 'src/PanelSessions';
 import { parse } from 'src/Parser';
+import { normalizeNamespace } from 'src/Entities';
 
 type PanelModuleCommandPayload = {
 	moduleName: string;
 	commandText: string;
+	namespace?: string;
 };
 
 const PANEL_CONTACT = {
@@ -22,13 +24,16 @@ const PANEL_CONTACT = {
 const createPanelMessage = ({
 	body,
 	boundaryId,
+	namespace,
 }: {
 	body: string;
 	boundaryId: string;
+	namespace: string;
 }): MessageReceivedByGateway => ({
 	body,
 	boundaryId,
 	boundaryName: 'kozz-gw-panel',
+	namespace,
 	chatId: 'kozz-gw-panel',
 	contact: PANEL_CONTACT,
 	from: 'kozz-gw-panel',
@@ -48,8 +53,9 @@ const createPanelMessage = ({
 
 export const panel_module_command =
 	(socket: Socket) =>
-	({ moduleName, commandText }: PanelModuleCommandPayload) => {
-		const handler = getHandlerByName(moduleName);
+	({ moduleName, commandText, namespace: rawNamespace }: PanelModuleCommandPayload) => {
+		const namespace = normalizeNamespace(rawNamespace);
+		const handler = getHandlerByName(moduleName, namespace);
 		if (!handler) {
 			socket.emit('panel_module_error', {
 				moduleName,
@@ -76,11 +82,13 @@ export const panel_module_command =
 		const message = createPanelMessage({
 			body: commandBody,
 			boundaryId,
+			namespace,
 		});
 		const { method, immediateArg, namedArgs, query } = parsed.result;
 		const command: Command = {
 			boundaryId,
 			boundaryName: 'kozz-gw-panel',
+			namespace,
 			immediateArg,
 			message,
 			method,

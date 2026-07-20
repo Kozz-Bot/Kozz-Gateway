@@ -7,7 +7,14 @@ import {
 } from 'kozz-types/dist';
 import { Socket } from 'socket.io';
 import { createHandler } from './Handler';
-import { normalizeString } from 'src/Util';
+import {
+	getAllHandlerEntities,
+	getHandlerEntityByName,
+	getHandlerEntityBySocketId,
+	normalizeNamespace,
+	registerHandlerEntity,
+	removeEntityBySocketId,
+} from 'src/Entities';
 
 let handlers: {
 	[key: string]: HandlerInstance;
@@ -21,22 +28,33 @@ export type ResolvedCommandAlias = {
 const getAliasTargetModule = (alias: CommandAlias, owner: HandlerInstance) =>
 	alias.target.module || owner.name;
 
-const getAllAliases = (): ResolvedCommandAlias[] =>
-	Object.values(handlers).flatMap(handler =>
+const getAllAliases = (namespace?: string): ResolvedCommandAlias[] =>
+	Object.values(handlers)
+		.filter(
+			handler =>
+				!namespace ||
+				normalizeNamespace(handler.namespace) === normalizeNamespace(namespace)
+		)
+		.flatMap(handler =>
 		(handler.aliases || []).map(alias => ({
 			alias,
 			owner: handler,
 		}))
 	);
 
-const isAliasConflictingWithHandler = (alias: CommandAlias) =>
-	Object.values(handlers).some(handler => handler.name === alias.name);
+const isAliasConflictingWithHandler = (alias: CommandAlias, namespace?: string) =>
+	Object.values(handlers).some(
+		handler =>
+			handler.name === alias.name &&
+			normalizeNamespace(handler.namespace) === normalizeNamespace(namespace)
+	);
 
 const isAliasConflictingWithAlias = (
 	alias: CommandAlias,
-	ownerName: string
+	ownerName: string,
+	namespace?: string
 ) =>
-	getAllAliases().some(
+	getAllAliases(namespace).some(
 		registeredAlias =>
 			registeredAlias.alias.name === alias.name &&
 			registeredAlias.owner.name !== ownerName
@@ -46,6 +64,7 @@ const getValidAliases = (
 	introduction: HandlerIntroduction
 ): CommandAlias[] => {
 	const aliasNames = new Set<string>();
+	const namespace = normalizeNamespace(introduction.namespace);
 
 	return (introduction.aliases || []).filter(alias => {
 		if (aliasNames.has(alias.name)) {
@@ -55,14 +74,14 @@ const getValidAliases = (
 			return false;
 		}
 
-		if (isAliasConflictingWithHandler(alias)) {
+		if (isAliasConflictingWithHandler(alias, namespace)) {
 			console.warn(
 				`Ignoring alias ${alias.name} from handler ${introduction.name}: a handler with that name already exists`
 			);
 			return false;
 		}
 
-		if (isAliasConflictingWithAlias(alias, introduction.name)) {
+		if (isAliasConflictingWithAlias(alias, introduction.name, namespace)) {
 			console.warn(
 				`Ignoring alias ${alias.name} from handler ${introduction.name}: alias already registered by another handler`
 			);
@@ -76,23 +95,29 @@ const getValidAliases = (
 
 export const addHandler = (socket: Socket, introduction: HandlerIntroduction) => {
 	const id = socket.id;
-	const oldHandlerConnection = getHandlerByName(introduction.name);
+	const namespace = normalizeNamespace(introduction.namespace);
+	const oldHandlerConnection = getHandlerByName(introduction.name, namespace);
 	if (oldHandlerConnection) {
 		console.warn(`Reconnecting Handler with name ${introduction.name}`);
 		delete handlers[oldHandlerConnection.id];
 	}
 
-	const aliases = getValidAliases(introduction);
-	handlers[id] = createHandler({ id, socket, ...introduction, aliases });
+	const aliases = getValidAliases({ ...introduction, namespace });
+	const handler = createHandler({ id, socket, ...introduction, namespace, aliases });
+	handlers[id] = handler;
+	registerHandlerEntity(handler);
 };
 
-export const getCommandAlias = (name: string): ResolvedCommandAlias | undefined => {
-	const handler = getHandlerByName(name);
+export const getCommandAlias = (
+	name: string,
+	namespace?: string
+): ResolvedCommandAlias | undefined => {
+	const handler = getHandlerByName(name, namespace);
 	if (handler) {
 		return;
 	}
 
-	return getAllAliases().find(
+	return getAllAliases(namespace).find(
 		registeredAlias => registeredAlias.alias.name === name
 	);
 };
@@ -104,16 +129,29 @@ export const getCommandAliasTargetModule = ({
 	return getAliasTargetModule(alias, owner);
 };
 
-export const getHandlerByName = (name: string): HandlerInstance | undefined => {
-	return Object.values(handlers).find(handler => handler.name === name);
+export const getHandlerByName = (
+	name: string,
+	namespace?: string
+): HandlerInstance | undefined => {
+	return (
+		getHandlerEntityByName(name, namespace) ||
+		Object.values(handlers).find(
+			handler =>
+				handler.name === name &&
+				normalizeNamespace(handler.namespace) === normalizeNamespace(namespace)
+		)
+	);
 };
 
-export const getHandler = (name: string): HandlerInstance | undefined => {
-	return Object.values(handlers).find(handler => handler.name === name);
+export const getHandler = (id: string): HandlerInstance | undefined => {
+	return getHandlerEntityBySocketId(id) || getHandlerEntityByName(id) || handlers[id];
 };
 
-export const getAllHandlerInstancess = (): HandlerInstance[] =>
-	Object.values(handlers);
+export const getAllHandlerInstancess = (namespace?: string): HandlerInstance[] =>
+	getAllHandlerEntities().filter(
+		handler =>
+			!namespace || normalizeNamespace(handler.namespace) === normalizeNamespace(namespace)
+	);
 
 export const isHandler = (
 	introduction: Introduction
@@ -124,9 +162,10 @@ export const isHandler = (
 export const addListenerToHandler = (
 	destinationId: string,
 	eventName: string,
-	sourceId: string
+	sourceId: string,
+	namespace?: string
 ) => {
-	const handler = getHandler(destinationId);
+	const handler = getHandler(destinationId) || getHandlerByName(destinationId, namespace);
 
 	if (!handler) {
 		return console.warn(
@@ -177,6 +216,7 @@ export const removeHandler = (handlerName: string) => {
 
 	console.log(`Disconnecting handler with id ${handler.name}`);
 	delete handlers[handlerName];
+	removeEntityBySocketId(handlerName);
 };
 
 export default handlers;

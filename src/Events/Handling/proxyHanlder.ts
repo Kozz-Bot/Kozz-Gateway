@@ -1,35 +1,34 @@
-import {
-	BidirectionalProxyRequestPayload,
-	ProxyRequestPayload,
-	UnidirectionalProxyRequestPayload,
-	ProxyRevokePayload,
-} from 'kozz-types';
+import { ProxyRequestPayload, ProxyRevokePayload } from 'kozz-types';
 import { Socket } from 'socket.io';
-import { removeProxy, upsertProxy } from 'src/Proxies';
+import { getEntityBySocketId, normalizeNamespace } from 'src/Entities';
+import { createProxy, revokeProxy } from 'src/Proxies';
 
-const isUnidirectional = (
-	proxy: ProxyRequestPayload
-): proxy is UnidirectionalProxyRequestPayload => {
-	return !proxy.bidirectional;
-};
-const isBidirectional = (
-	proxy: ProxyRequestPayload
-): proxy is BidirectionalProxyRequestPayload => {
-	return !!proxy.bidirectional;
-};
-
-export const request_proxy = (_: Socket) => (payload: ProxyRequestPayload) => {
-	if (isUnidirectional(payload)) {
-		upsertProxy(payload.source, payload.destination);
+export const request_proxy = (socket: Socket) => (payload: ProxyRequestPayload) => {
+	const requester = getEntityBySocketId(socket.id);
+	if (!requester) {
+		return socket.emit('request_proxy_ack', {
+			success: false,
+			error: 'requester is not registered',
+		});
 	}
 
-	if (isBidirectional(payload)) {
-		upsertProxy(payload.source, payload.destination);
-		upsertProxy(payload.replyDirection.source, payload.replyDirection.destination);
-	}
+	const created = createProxy(
+		requester.name,
+		payload,
+		normalizeNamespace(requester.namespace)
+	);
+
+	socket.emit('request_proxy_ack', {
+		success: true,
+		subscriptionIds: created.map(subscription => subscription.id),
+	});
 };
 
 export const revoke_proxy =
-	(_: Socket) => (payload: ProxyRevokePayload, disconnecting?: boolean) => {
-		removeProxy(payload.source, disconnecting);
+	(socket: Socket) => (payload: ProxyRevokePayload, disconnecting?: boolean) => {
+		const requester = getEntityBySocketId(socket.id);
+		if (!requester) {
+			return;
+		}
+		revokeProxy(payload, normalizeNamespace(requester.namespace));
 	};

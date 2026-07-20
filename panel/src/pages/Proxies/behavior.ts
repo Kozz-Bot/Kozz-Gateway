@@ -3,8 +3,17 @@ import { AppModel } from '@/App/behavior';
 import { formatJson } from '@/lib/json';
 
 type ProxyDestination = {
-	destination?: string;
-	keepAlive?: boolean;
+	id: string;
+	requestedBy: string;
+	subscriber: string;
+	source: {
+		boundary: string;
+		chats: '*' | string[];
+	};
+	status: string;
+	createdAt: number;
+	updatedAt: number;
+	expiresAt?: number;
 };
 
 type ProxyMap = Record<string, ProxyDestination[]>;
@@ -36,6 +45,20 @@ const getMessageFocus = (message: Record<string, unknown>) => {
 	return [type, from, to].filter(value => typeof value === 'string' && value).join(' · ');
 };
 
+const getProxySourceLabel = (proxy: ProxyDestination) =>
+	proxy.source.chats === '*'
+		? `${proxy.source.boundary}/*`
+		: `${proxy.source.boundary}/${proxy.source.chats[0]}`;
+
+const groupProxiesBySource = (proxies: ProxyDestination[]) =>
+	proxies.reduce<ProxyMap>((acc, proxy) => {
+		const source = getProxySourceLabel(proxy);
+		return {
+			...acc,
+			[source]: [...(acc[source] || []), proxy],
+		};
+	}, {});
+
 export const useProxiesBehavior = ({ model }: { model: AppModel }) => {
 	const [proxyMap, setProxyMap] = useState<ProxyMap>({});
 	const [selectedSource, setSelectedSource] = useState('');
@@ -45,7 +68,11 @@ export const useProxiesBehavior = ({ model }: { model: AppModel }) => {
 
 	useEffect(() => {
 		model.socket.askGateway('gateway_proxies').then(response => {
-			const nextProxyMap = (response.response as ProxyMap) || {};
+			const nextProxyMap = groupProxiesBySource(
+				Array.isArray(response.response)
+					? (response.response as ProxyDestination[])
+					: []
+			);
 			const sources = Object.keys(nextProxyMap);
 			setProxyMap(nextProxyMap);
 			setSelectedSource(current => current || sources[0] || '');
@@ -108,7 +135,7 @@ export const useProxiesBehavior = ({ model }: { model: AppModel }) => {
 		() =>
 			Object.entries(proxyMap).map(([source, destinations]) => ({
 				destinationLabel: destinations
-					.map(destination => destination.destination)
+					.map(destination => `${destination.subscriber} (${destination.status})`)
 					.filter(Boolean)
 					.join(', '),
 				label: source,

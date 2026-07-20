@@ -14,16 +14,19 @@ import {
 } from 'src/Handlers';
 import { getAllBoundaries, getAllHandlers } from './Getters';
 import { delay } from 'src/Util';
+import { getEntityBySocketId, normalizeNamespace } from 'src/Entities';
 
 export const event_forward_request =
 	(socket: Socket) =>
 	async ({ sourceId, destination, eventName }: ForwardEventPayload) => {
+		const requester = getEntityBySocketId(socket.id);
+		const namespace = normalizeNamespace(requester?.namespace);
 		const { type, id } = destination;
 		await delay(5000);
-		if (type === 'Boundary' && getBoundaryByName(id)) {
-			addListenerToBoundary(destination.id, eventName, sourceId);
-		} else if (type === 'Handler' && getHandlerByName(id)) {
-			addListenerToHandler(destination.id, eventName, sourceId);
+		if (type === 'Boundary' && getBoundaryByName(id, namespace)) {
+			addListenerToBoundary(destination.id, eventName, sourceId, namespace);
+		} else if (type === 'Handler' && getHandlerByName(id, namespace)) {
+			addListenerToHandler(destination.id, eventName, sourceId, namespace);
 		} else {
 			console.warn('Wrong payload when trying to request event listening', {
 				sourceId,
@@ -45,12 +48,13 @@ export const event_forward_revoke =
 		}
 
 		const { type, id } = destination;
+		const namespace = normalizeNamespace(getEntityBySocketId(socket.id)?.namespace);
 
-		if (type === 'Boundary' && getBoundaryByName(sourceName)) {
+		if (type === 'Boundary' && getBoundaryByName(sourceName, namespace)) {
 			removeListenerFromBoundary(destination.id, eventName);
 		}
 
-		if (type === 'Handler' && getHandlerByName(sourceName)) {
+		if (type === 'Handler' && getHandlerByName(sourceName, namespace)) {
 			removeListenerFromHandler(destination.id, eventName);
 		}
 	};
@@ -60,10 +64,13 @@ export const forward_event =
 	({ eventName, payload }: ForwardedEventPayload) => {
 		try {
 			const source = (getBoundary(socket.id) || getHandler(socket.id))?.name;
+			const namespace = normalizeNamespace(
+				(getBoundary(socket.id) || getHandler(socket.id))?.namespace
+			);
 
 			console.log({ eventName, payload, source });
 
-			const allBoundaries = getAllBoundaries(true);
+			const allBoundaries = getAllBoundaries(true, namespace);
 			allBoundaries.forEach(boundary => {
 				const isListening = boundary.boundary.listeners.some(
 					listener => listener.eventName === eventName && listener.source === source
@@ -77,7 +84,7 @@ export const forward_event =
 				}
 			});
 
-			const allHandlers = getAllHandlers(true);
+			const allHandlers = getAllHandlers(true, namespace);
 			allHandlers.forEach(handler => {
 				const isListening = handler.handler.listeners.some(
 					listener => listener.eventName === eventName && listener.source === source

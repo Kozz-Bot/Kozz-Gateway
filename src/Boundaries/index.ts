@@ -6,6 +6,14 @@ import {
 import { Socket } from 'socket.io';
 import { createBoundary } from './Boundary';
 import { normalizeString } from 'src/Util';
+import {
+	getAllBoundaryEntities,
+	getBoundaryEntityByName,
+	getBoundaryEntityBySocketId,
+	normalizeNamespace,
+	registerBoundaryEntity,
+	removeEntityBySocketId,
+} from 'src/Entities';
 
 let boundaries: {
 	[key: string]: BoundaryInstance;
@@ -13,24 +21,30 @@ let boundaries: {
 
 export const addBoundary = (socket: Socket, introduction: BoundaryIntroduction) => {
 	const id = socket.id;
-	const oldBoundaryConnection = getBoundaryByName(introduction.name);
+	const namespace = normalizeNamespace(introduction.namespace);
+	const oldBoundaryConnection = getBoundaryByName(introduction.name, namespace);
 	if (oldBoundaryConnection) {
 		console.warn(`Reconnecting Boundary with name ${introduction.name}`);
 		delete boundaries[oldBoundaryConnection.id];
-		boundaries[id] = oldBoundaryConnection;
-	} else {
-		boundaries[id] = createBoundary({ id, socket, ...introduction });
 	}
+
+	const boundary = createBoundary({ id, socket, ...introduction, namespace });
+	boundaries[id] = boundary;
+	registerBoundaryEntity(boundary);
 };
 
 export const getBoundary = (id: string): BoundaryInstance | undefined =>
-	boundaries[normalizeString(id)];
+	getBoundaryEntityBySocketId(normalizeString(id)) || boundaries[normalizeString(id)];
 
-export const getBoundaryByName = (name: string) =>
-	getAllBoundaryInstances().find(boundary => boundary.name === name);
+export const getBoundaryByName = (name: string, namespace?: string) =>
+	getBoundaryEntityByName(name, namespace) ||
+	getAllBoundaryInstances(namespace).find(boundary => boundary.name === name);
 
-export const getAllBoundaryInstances = (): BoundaryInstance[] =>
-	Object.values(boundaries);
+export const getAllBoundaryInstances = (namespace?: string): BoundaryInstance[] =>
+	getAllBoundaryEntities().filter(
+		boundary =>
+			!namespace || normalizeNamespace(boundary.namespace) === normalizeNamespace(namespace)
+	);
 
 export const isBoundary = (
 	introduction: Introduction
@@ -47,9 +61,11 @@ export const logBoundary = (boundary: BoundaryInstance) => {
 export const addListenerToBoundary = (
 	destinationId: string,
 	eventName: string,
-	sourceId: string
+	sourceId: string,
+	namespace?: string
 ) => {
-	const boundary = getBoundary(destinationId) || getBoundaryByName(destinationId);
+	const boundary =
+		getBoundary(destinationId) || getBoundaryByName(destinationId, namespace);
 
 	if (!boundary) {
 		return console.warn(
@@ -86,6 +102,7 @@ export const removeListenerFromBoundary = (id: string, eventName: string) => {
 export const removeBoundary = (boundaryName: string) => {
 	console.log(`Disconnecting Boundary with id ${boundaryName}`);
 	delete boundaries[boundaryName];
+	removeEntityBySocketId(boundaryName);
 };
 
 export default boundaries;
