@@ -2310,10 +2310,10 @@ kozz-module-maker@^0.4.0:
     dotenv "^16.6.1"
     socket.io-client "^4.8.1"
 
-kozz-types@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/kozz-types/-/kozz-types-0.2.0.tgz"
-  integrity sha512-3MGvcx3tZAyELw/87FnNGrDlh0XI5gBjSyk5fDsk5TzhND5/4F1XC2V4shuJ7Vt2wRp42ODl6HyCtPtcHDmtHg==
+kozz-types@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/kozz-types/-/kozz-types-0.2.1.tgz"
+  integrity sha512-8iadCgy/YeL22ejXQdISzey/CxYrLeKQOZrArqMWsA6HvlyQ0vYnNfAjdgsh3w2uW9X4nvAukhNdwoi3aboekA==
   dependencies:
     link-module-alias "^1.2.0"
 
