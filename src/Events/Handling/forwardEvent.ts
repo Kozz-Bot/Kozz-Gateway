@@ -19,10 +19,13 @@ import { getEntityBySocketId, normalizeNamespace } from 'src/Entities';
 export const event_forward_request =
 	(socket: Socket) =>
 	async ({ sourceId, destination, eventName }: ForwardEventPayload) => {
-		const requester = getEntityBySocketId(socket.id);
-		const namespace = normalizeNamespace(requester?.namespace);
-		const { type, id } = destination;
 		await delay(5000);
+		const requester = getEntityBySocketId(socket.id);
+		const requesterInstance = getHandler(socket.id) || getBoundary(socket.id);
+		const namespace = normalizeNamespace(
+			requester?.namespace || requesterInstance?.namespace
+		);
+		const { type, id } = destination;
 		if (type === 'Boundary' && getBoundaryByName(id, namespace)) {
 			addListenerToBoundary(destination.id, eventName, sourceId, namespace);
 		} else if (type === 'Handler' && getHandlerByName(id, namespace)) {

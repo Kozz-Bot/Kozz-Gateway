@@ -65,7 +65,7 @@ export const addListenerToBoundary = (
 	namespace?: string
 ) => {
 	const boundary =
-		getBoundary(destinationId) || getBoundaryByName(destinationId, namespace);
+		getBoundaryByName(destinationId, namespace) || getBoundary(destinationId);
 
 	if (!boundary) {
 		return console.warn(

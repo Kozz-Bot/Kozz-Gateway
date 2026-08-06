@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ProxyRegistry } from '.';
+import { getProxyMessageSource, ProxyRegistry } from '.';
 
 const source = (boundary = 'wa', chats: '*' | string[] = '*') => ({
 	boundary,
@@ -114,6 +114,36 @@ describe('ProxyRegistry', () => {
 		});
 
 		expect(registry.getSubscriptionsForMessage('wa', 'chat-1')).toHaveLength(1);
+	});
+
+	it('uses chatId as the proxy source when the boundary provides it', () => {
+		expect(
+			getProxyMessageSource({
+				boundaryName: 'wa',
+				boundaryId: 'socket-1',
+				namespace: 'default',
+				platform: 'Baileys',
+				timestamp: 1,
+				from: '5511999999999@s.whatsapp.net',
+				body: 'oi',
+				santizedBody: 'oi',
+				taggedConctactFriendlyBody: 'oi',
+				to: '120363427789869691@g.us',
+				id: 'message-1',
+				fromHostAccount: false,
+				quotedMessage: undefined,
+				contact: {
+					id: '5511999999999@s.whatsapp.net',
+					publicName: 'User',
+					isHostAccount: false,
+					isBlocked: false,
+				},
+				messageType: 'TEXT',
+				isViewOnce: false,
+				taggedContacts: [],
+				chatId: '120363427789869691@g.us',
+			})
+		).toBe('120363427789869691@g.us');
 	});
 
 	it('isolates subscriptions by namespace', () => {

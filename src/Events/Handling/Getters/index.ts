@@ -1,9 +1,11 @@
 import { BoundaryInstance, EventListener } from 'kozz-types';
 import { Socket } from 'socket.io';
-import boundaries from 'src/Boundaries';
-import handlers from 'src/Handlers';
 import { getAllProxies } from 'src/Proxies';
-import { normalizeNamespace } from 'src/Entities';
+import {
+	getAllBoundaryEntities,
+	getAllHandlerEntities,
+	normalizeNamespace,
+} from 'src/Entities';
 
 type GetBoundaryReturn<GetSocket = false> = {
 	id: string;
@@ -20,17 +22,17 @@ export const getAllBoundaries = <GetSocket>(
 	getSocket?: GetSocket,
 	namespace?: string
 ): GetBoundaryReturn<GetSocket>[] => {
-	return Object.keys(boundaries)
+	return getAllBoundaryEntities()
 		.filter(
-			key =>
+			boundary =>
 				!namespace ||
-				normalizeNamespace(boundaries[key].namespace) === normalizeNamespace(namespace)
+				normalizeNamespace(boundary.namespace) === normalizeNamespace(namespace)
 		)
-		.map(key => {
-		const { name, platform, OS, listeners, socket } = boundaries[key];
+		.map(boundary => {
+		const { id, name, platform, OS, listeners, socket } = boundary;
 
 		return {
-			id: key,
+			id,
 			boundary: {
 				name,
 				platform,
@@ -59,14 +61,14 @@ export const getAllHandlers = <GetSocket>(
 	getSocket?: GetSocket,
 	namespace?: string
 ) => {
-	return Object.keys(handlers)
+	return getAllHandlerEntities()
 		.filter(
-			key =>
+			handler =>
 				!namespace ||
-				normalizeNamespace(handlers[key].namespace) === normalizeNamespace(namespace)
+				normalizeNamespace(handler.namespace) === normalizeNamespace(namespace)
 		)
-		.map(key => {
-		const { id, methods, name, role, listeners, socket } = handlers[key];
+		.map(handler => {
+		const { id, methods, name, role, listeners, socket } = handler;
 
 		return {
 			name,

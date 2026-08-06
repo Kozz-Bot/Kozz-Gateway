@@ -39,10 +39,7 @@ export const registerBoundaryEntity = (entity: BoundaryInstance) => {
 		name: entity.name,
 		namespace,
 		socketId: entity.id,
-		entity: {
-			...entity,
-			namespace,
-		},
+		entity,
 	};
 
 	byName.set(entityNameKey(entity.name, namespace), gatewayEntity);
@@ -62,10 +59,7 @@ export const registerHandlerEntity = (entity: HandlerInstance) => {
 		name: entity.name,
 		namespace,
 		socketId: entity.id,
-		entity: {
-			...entity,
-			namespace,
-		},
+		entity,
 	};
 
 	byName.set(entityNameKey(entity.name, namespace), gatewayEntity);

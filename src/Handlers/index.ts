@@ -165,7 +165,7 @@ export const addListenerToHandler = (
 	sourceId: string,
 	namespace?: string
 ) => {
-	const handler = getHandler(destinationId) || getHandlerByName(destinationId, namespace);
+	const handler = getHandlerByName(destinationId, namespace) || getHandler(destinationId);
 
 	if (!handler) {
 		return console.warn(
@@ -174,7 +174,7 @@ export const addListenerToHandler = (
 	}
 
 	console.log(
-		`Handler ${handler.name} is requesting to listen to events ${eventName} from ${sourceId}`
+		`Handler ${handler.name} in namespace ${handler.namespace} is requesting to listen to events ${eventName} from ${sourceId}`
 	);
 
 	//If is already listening listening to the event, do nothing;
@@ -187,6 +187,10 @@ export const addListenerToHandler = (
 		eventName,
 		source: sourceId,
 	});
+
+	console.log(
+		`Handler ${handler.name} has ${handler.listeners.length} event listener(s)`
+	);
 };
 
 export const removeListenerFromHandler = (id: string, eventName: string) => {

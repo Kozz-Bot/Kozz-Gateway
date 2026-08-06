@@ -464,11 +464,13 @@ export const getAllProxies = (namespace?: string) => {
 		);
 };
 
+export const getProxyMessageSource = (message: MessageReceivedByGateway) =>
+	message.chatId || (message.groupName ? message.to : message.from);
+
 export const useProxy = (message: MessageReceivedByGateway) => {
 	expirePendingProxySubscribers();
 
-	// If message was sent to a group, capture the group id instead of the author id.
-	const messageSource = message.groupName ? message.to : message.from;
+	const messageSource = getProxyMessageSource(message);
 	const subscriptions = proxyRegistry.getSubscriptionsForMessage(
 		message.boundaryName,
 		messageSource,
