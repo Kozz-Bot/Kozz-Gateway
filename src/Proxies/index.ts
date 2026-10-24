@@ -476,6 +476,12 @@ export const useProxy = (message: MessageReceivedByGateway) => {
 		messageSource,
 		message.namespace
 	);
+	const traceMedia = Boolean(message.media || message.isViewOnce);
+	if (traceMedia) console.info('[MediaTrace]', JSON.stringify({
+		at: new Date().toISOString(), component: 'gateway', stage: 'proxy.matches', id: message.id,
+		boundary: message.boundaryName, namespace: message.namespace, source: messageSource,
+		subscribers: subscriptions.map(subscription => subscription.subscriber),
+	}));
 
 	if (!subscriptions.length) {
 		return;
@@ -497,9 +503,18 @@ export const useProxy = (message: MessageReceivedByGateway) => {
 		});
 
 		if (!destinationEntity) {
+			if (traceMedia) console.info('[MediaTrace]', JSON.stringify({
+				at: new Date().toISOString(), component: 'gateway', stage: 'proxy.skipped', id: message.id,
+				subscriber: subscription.subscriber, reason: 'subscriber_unavailable',
+			}));
 			return;
 		}
 
+		if (traceMedia) console.info('[MediaTrace]', JSON.stringify({
+			at: new Date().toISOString(), component: 'gateway', stage: 'proxy.emit', id: message.id,
+			subscriber: subscription.subscriber, connected: destinationEntity.socket.connected,
+			isViewOnce: message.isViewOnce, hasMedia: Boolean(message.media?.data),
+		}));
 		destinationEntity.socket.emit('proxied_message', message);
 	});
 };

@@ -29,17 +29,16 @@ const assertBoundary = (id: string) => {
 
 const populateMessagePayload = (
 	message: MessageReceived,
-	socket: Socket
+	boundary: NonNullable<ReturnType<typeof getBoundary>>
 ): MessageReceivedByGateway => {
-	const boundary = getBoundary(socket.id)!;
 	const newMessage: MessageReceivedByGateway = {
 		...message,
 		timestamp: message.timestamp || new Date().getTime(),
-		boundaryId: socket.id,
+		boundaryId: boundary.id,
 		boundaryName: boundary.name,
 		namespace: normalizeNamespace(boundary.namespace),
 		quotedMessage: message.quotedMessage
-			? populateMessagePayload(message.quotedMessage, socket)
+			? populateMessagePayload(message.quotedMessage, boundary)
 			: undefined,
 	};
 
@@ -77,15 +76,27 @@ const getQuery = (method: string, immediateArg: string | null) => {
 };
 
 export const message = (socket: Socket) => (message: MessageReceived) => {
+	if (message.media || message.isViewOnce) console.info('[MediaTrace]', JSON.stringify({
+		at: new Date().toISOString(), component: 'gateway', stage: 'received', id: message.id,
+		boundary: message.boundaryName, registered: Boolean(getBoundary(socket.id)),
+		isViewOnce: message.isViewOnce, hasMedia: Boolean(message.media?.data),
+	}));
 	try {
-		const newMessage = populateMessagePayload(message, socket);
-
 		const id = socket.id;
 		assertBoundary(id);
+		const boundary = getBoundary(id);
+		if (!boundary) return;
+		const newMessage = populateMessagePayload(message, boundary);
 
 		useProxy(newMessage);
 
-		const command = parse(newMessage.santizedBody ?? newMessage.body);
+		// Button labels/IDs are untrusted display data. Only a command resolved
+		// against the boundary's own menu may enter normal command routing.
+		const interaction = newMessage.interactiveResponse;
+		if (interaction && (interaction.status !== 'accepted' || !interaction.command)) return;
+		const command = parse(interaction?.command
+			? interaction.command.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+			: newMessage.santizedBody ?? newMessage.body);
 		if (command.isError) {
 			return;
 		}
@@ -113,7 +124,7 @@ export const message = (socket: Socket) => (message: MessageReceived) => {
 			boundaryId: socket.id,
 			message: newMessage,
 			query: targetQuery,
-			boundaryName: getBoundary(socket.id)!.name,
+			boundaryName: boundary.name,
 			namespace: newMessage.namespace,
 			taggedContacts: newMessage.taggedContacts,
 		};

@@ -1,7 +1,7 @@
 node_modules
 dist
 coverage
-keys/*
+keys
 server
 .env
 .env.dev

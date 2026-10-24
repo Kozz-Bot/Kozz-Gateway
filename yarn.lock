@@ -162,7 +162,7 @@
     "@codemirror/view" "^6.0.0"
     "@lezer/highlight" "^1.0.0"
 
-"@codemirror/view@^6.0.0", "@codemirror/view@^6.17.0", "@codemirror/view@^6.23.0", "@codemirror/view@^6.27.0", "@codemirror/view@^6.37.0", "@codemirror/view@^6.42.0", "@codemirror/view@^6.43.6", "@codemirror/view@>=6.0.0":
+"@codemirror/view@^6.0.0", "@codemirror/view@^6.17.0", "@codemirror/view@^6.23.0", "@codemirror/view@^6.27.0", "@codemirror/view@^6.37.0", "@codemirror/view@^6.42.0", "@codemirror/view@^6.43.6":
   version "6.43.6"
   resolved "https://registry.npmjs.org/@codemirror/view/-/view-6.43.6.tgz"
   integrity sha512-EVunGSYN1wz1p75WY1s3Xg7t3i8Yol0kGZGizNdX9BUFgMFILYVe8/u6EVpo7Ff5PwbZuILb4QAq7IZoKzIEQA==
@@ -217,7 +217,7 @@
   resolved "https://registry.npmjs.org/@emotion/memoize/-/memoize-0.9.0.tgz"
   integrity sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ==
 
-"@emotion/react@^11.0.0-rc.0", "@emotion/react@^11.14.0":
+"@emotion/react@^11.14.0":
   version "11.14.0"
   resolved "https://registry.npmjs.org/@emotion/react/-/react-11.14.0.tgz"
   integrity sha512-O000MLDBDdk/EohJPFUqvnp4qnHeYkVP5B0xEG0D/L7cOKP9kefu2DXn8dj74cQfsEzUqh+sr1RzFqiL1o+PpA==
@@ -460,7 +460,7 @@
     "@parcel/transformer-react-refresh-wrap" "2.13.3"
     "@parcel/transformer-svg" "2.13.3"
 
-"@parcel/core@^2.13.3", "@parcel/core@2.13.3":
+"@parcel/core@2.13.3":
   version "2.13.3"
   resolved "https://registry.npmjs.org/@parcel/core/-/core-2.13.3.tgz"
   integrity sha512-SRZFtqGiaKHlZ2YAvf+NHvBFWS3GnkBvJMfOJM7kxJRK3M1bhbwJa/GgSdzqro5UVf9Bfj6E+pkdrRQIOZ7jMQ==
@@ -1079,7 +1079,7 @@
   resolved "https://registry.npmjs.org/@swc/counter/-/counter-0.1.3.tgz"
   integrity sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==
 
-"@swc/helpers@*", "@swc/helpers@^0.5.0":
+"@swc/helpers@^0.5.0":
   version "0.5.15"
   resolved "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.15.tgz"
   integrity sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==
@@ -1155,7 +1155,7 @@
 "@types/mime@^1":
   version "1.3.5"
 
-"@types/node@*", "@types/node@^18.0.0 || >=20.0.0", "@types/node@^20.19.0 || >=22.12.0", "@types/node@>=10.0.0":
+"@types/node@*", "@types/node@>=10.0.0":
   version "22.13.0"
   dependencies:
     undici-types "~6.20.0"
@@ -1176,7 +1176,7 @@
   resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-19.2.3.tgz"
   integrity sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==
 
-"@types/react@^19.2.0", "@types/react@^19.2.17":
+"@types/react@^19.2.17":
   version "19.2.17"
   resolved "https://registry.npmjs.org/@types/react/-/react-19.2.17.tgz"
   integrity sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==
@@ -1431,7 +1431,7 @@ braces@^3.0.3, braces@~3.0.2:
   dependencies:
     fill-range "^7.1.1"
 
-browserslist@^4.6.6, "browserslist@>= 4.21.0":
+browserslist@^4.6.6:
   version "4.24.4"
   resolved "https://registry.npmjs.org/browserslist/-/browserslist-4.24.4.tgz"
   integrity sha512-KDi1Ny1gSePi1vm0q4oxSF8b4DR44GF4BbmS2YdhPLOEqd8pDviZOGH/GsmRwoWJ2+5Lr085X7naowMwKHDG1A==
@@ -1787,7 +1787,7 @@ dotenv-expand@^11.0.6:
   dependencies:
     dotenv "^16.4.5"
 
-dotenv@^16.4.5, dotenv@^16.6.1:
+dotenv@^16.4.5:
   version "16.6.1"
   resolved "https://registry.npmjs.org/dotenv/-/dotenv-16.6.1.tgz"
   integrity sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==
@@ -2301,19 +2301,17 @@ keytar@^7.9.0:
     node-addon-api "^4.3.0"
     prebuild-install "^7.0.1"
 
-kozz-module-maker@^0.4.0:
+"kozz-module-maker@file:../kozz-module-maker":
   version "0.4.0"
-  resolved "https://registry.npmjs.org/kozz-module-maker/-/kozz-module-maker-0.4.0.tgz"
-  integrity sha512-/zmLC5SWMCNZfwBCAbxRi53Ks+FPSTiinB+R5Hgq480uxWhndQZEcFpdfZH6jcO2fw5QAXcZXYUsHrXivMaxXA==
+  resolved "file:../kozz-module-maker"
   dependencies:
     arcsecond "^5.0.0"
     dotenv "^16.6.1"
     socket.io-client "^4.8.1"
 
-kozz-types@^0.2.1:
+"kozz-types@file:../kozz-types":
   version "0.2.1"
-  resolved "https://registry.npmjs.org/kozz-types/-/kozz-types-0.2.1.tgz"
-  integrity sha512-8iadCgy/YeL22ejXQdISzey/CxYrLeKQOZrArqMWsA6HvlyQ0vYnNfAjdgsh3w2uW9X4nvAukhNdwoi3aboekA==
+  resolved "file:../kozz-types"
   dependencies:
     link-module-alias "^1.2.0"
 
@@ -2327,7 +2325,7 @@ lightningcss-linux-x64-musl@1.32.0:
   resolved "https://registry.npmjs.org/lightningcss-linux-x64-musl/-/lightningcss-linux-x64-musl-1.32.0.tgz"
   integrity sha512-bYcLp+Vb0awsiXg/80uCRezCYHNg1/l3mt0gzHnWV9XP1W5sKa5/TCdGWaR/zBM2PeF/HbsQv/j2URNOiVuxWg==
 
-lightningcss@^1.21.0, lightningcss@^1.22.1, lightningcss@^1.32.0:
+lightningcss@^1.22.1, lightningcss@^1.32.0:
   version "1.32.0"
   resolved "https://registry.npmjs.org/lightningcss/-/lightningcss-1.32.0.tgz"
   integrity sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ==
@@ -2636,7 +2634,7 @@ picocolors@^1.1.1:
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3, picomatch@^2.3.1:
   version "2.3.1"
 
-"picomatch@^3 || ^4", picomatch@^4.0.4:
+picomatch@^4.0.4:
   version "4.0.5"
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-4.0.5.tgz"
   integrity sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==
@@ -2651,7 +2649,7 @@ postcss-value-parser@^4.2.0:
   resolved "https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz"
   integrity sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==
 
-postcss@^8.3.11, postcss@^8.4.43, postcss@^8.5.17:
+postcss@^8.4.43, postcss@^8.5.17:
   version "8.5.19"
   resolved "https://registry.npmjs.org/postcss/-/postcss-8.5.19.tgz"
   integrity sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==
@@ -2761,7 +2759,7 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^19.2.7, react-dom@>=17.0.0:
+react-dom@^19.2.7:
   version "19.2.7"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-19.2.7.tgz"
   integrity sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==
@@ -2786,7 +2784,7 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.14.2.tgz"
   integrity sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==
 
-"react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", react@^19.2.7, react@>=16.8.0, react@>=17.0.0:
+react@^19.2.7:
   version "19.2.7"
   resolved "https://registry.npmjs.org/react/-/react-19.2.7.tgz"
   integrity sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==
@@ -3001,7 +2999,7 @@ socket.io-adapter@~2.5.2:
     debug "~4.3.4"
     ws "~8.17.1"
 
-socket.io-client@^4.8.1, socket.io-client@^4.8.3:
+socket.io-client@^4.8.3:
   version "4.8.3"
   resolved "https://registry.npmjs.org/socket.io-client/-/socket.io-client-4.8.3.tgz"
   integrity sha512-uP0bpjWrjQmUt5DTHq9RuoCBdFJF10cdX9X+a368j/Ft0wmaVgxlrjvK3kjvgCODOMMOz9lcaRzxmso0bTWZ/g==
@@ -3220,7 +3218,7 @@ typedoc@^0.23.28:
     minimatch "^7.1.3"
     shiki "^0.14.1"
 
-typescript@^4.9.5, typescript@^5.9.2, typescript@>=4.9.5, "typescript@4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x":
+typescript@^4.9.5:
   version "4.9.5"
 
 undefsafe@^2.0.5:
@@ -3276,7 +3274,7 @@ vite@^5.0.0:
   optionalDependencies:
     fsevents "~2.3.3"
 
-vite@^8.0.0, vite@^8.1.5:
+vite@^8.1.5:
   version "8.1.5"
   resolved "https://registry.npmjs.org/vite/-/vite-8.1.5.tgz"
   integrity sha512-7ULLwsCdYx/nRyrpiEwvqb5TFHrMVZyBt+rg/OAXT7rgj/z+DtTDyKFeLAdDkubDVDKD8jOsndmy7m55XcfUsw==

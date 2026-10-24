@@ -78,15 +78,32 @@ const runBoundarySignatureScript = () => {
 
 runBoundarySignatureScript();
 
+const readPort = (envName: string, fallback: number) => {
+	const raw = process.env[envName];
+	if (!raw) {
+		return fallback;
+	}
+
+	const parsed = Number(raw);
+	if (!Number.isInteger(parsed) || parsed <= 0) {
+		throw new Error(`${envName} must be a positive integer. Received: ${raw}`);
+	}
+
+	return parsed;
+};
+
+const gatewayPort = readPort('GATEWAY_PORT', 4521);
+const gatewayPanelPort = readPort('GATEWAY_PANEL_PORT', 3878);
+
 createServer({
 	bufferSizeInMB: 256,
-	port: 4521,
+	port: gatewayPort,
 });
 
-console.log('Gateway ready');
+console.log(`Gateway ready on port ${gatewayPort}`);
 
 WebsiteServer.use('/api', cors());
 WebsiteServer.use('/api', checkApiKey);
 WebsiteServer.use('/api', router);
 
-WebsiteServer.listen(3878);
+WebsiteServer.listen(gatewayPanelPort);

@@ -31,11 +31,9 @@ export const event_forward_request =
 		} else if (type === 'Handler' && getHandlerByName(id, namespace)) {
 			addListenerToHandler(destination.id, eventName, sourceId, namespace);
 		} else {
-			console.warn('Wrong payload when trying to request event listening', {
-				sourceId,
-				destination,
-				eventName,
-			});
+			console.warn(
+				`[kozz-gw] event listener request rejected source=${sourceId} destination=${type}:${id} event=${eventName} namespace=${namespace}`
+			);
 		}
 	};
 
@@ -47,7 +45,7 @@ export const event_forward_revoke =
 			: getBoundary(socket.id)?.name;
 
 		if (!sourceName) {
-			return console.warn('Invalid source name');
+			return console.warn('[kozz-gw] invalid event listener revoke source');
 		}
 
 		const { type, id } = destination;
@@ -71,8 +69,6 @@ export const forward_event =
 				(getBoundary(socket.id) || getHandler(socket.id))?.namespace
 			);
 
-			console.log({ eventName, payload, source });
-
 			const allBoundaries = getAllBoundaries(true, namespace);
 			allBoundaries.forEach(boundary => {
 				const isListening = boundary.boundary.listeners.some(
@@ -80,6 +76,9 @@ export const forward_event =
 				);
 
 				if (isListening) {
+					console.log(
+						`[kozz-gw:${source}] forward event=${eventName} destination=boundary:${boundary.boundary.name}`
+					);
 					boundary.boundary.socket.emit('forwarded_event', {
 						eventName,
 						payload,
@@ -93,12 +92,10 @@ export const forward_event =
 					listener => listener.eventName === eventName && listener.source === source
 				);
 
-				console.log(handler.handler.socket.id);
-				console.log(handler.handler.listeners);
-
-				console.log(handler.name, 'is listening?', isListening);
-
 				if (isListening) {
+					console.log(
+						`[kozz-gw:${source}] forward event=${eventName} destination=handler:${handler.name}`
+					);
 					handler.handler.socket.emit('forwarded_event', {
 						eventName,
 						payload,
@@ -106,6 +103,6 @@ export const forward_event =
 				}
 			});
 		} catch (e) {
-			console.warn(e);
+			console.warn(`[kozz-gw] forward event failed error=${e instanceof Error ? e.message : String(e)}`);
 		}
 	};
